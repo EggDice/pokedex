@@ -1,17 +1,19 @@
 import React from 'react';
 import './App.css';
-import { httpGet } from './http';
+import { ListingContext } from './listing/listing-context';
+import { Listing } from './listing/listing-component';
+import type { ListingService } from './listing/service';
 
-const url = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png';
-                   //
-httpGet('https://pokeapi.co/api/v2/pokemon')().then(console.log)
+type AppProps = {
+  services: {
+    listing: ListingService,
+  },
+};
 
-function App() {
-  return (
+export const App = ({ services: { listing } }: AppProps) => (
     <div className="App">
-      <img src={url} className="App-logo" alt="logo" />
+      <ListingContext.Provider value={listing}>
+        <Listing />
+      </ListingContext.Provider>
     </div>
   );
-}
-
-export default App;

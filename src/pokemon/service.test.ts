@@ -1,19 +1,24 @@
 import { createPokemonService } from './service';
-import { httpGetStub } from '../http/stub';
+import { pokemonHttpStub } from './fake';
 
 test('get image by id', () => {
-  const image = createPokemonService(mockHttp).getImageById(1);
+  const image = createPokemonService(pokemonHttpStub).getImageById(1);
   expect(image).toBe('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png');
 });
 
 test('get all images', () => {
-  const images = createPokemonService(mockHttp).getAllImages();
+  const images = createPokemonService(pokemonHttpStub).getAllImages();
   expect(images.length).toBe(151);
   expect(images[0]).toBe('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png');
 });
 
+test('get all pokemon names', async () => {
+  const names = await createPokemonService(pokemonHttpStub).getAllNames();
+  expect(names[0]).toBe('bulbasaur');
+});
+
 test('get details on single pokemon', async () => {
-  const details = await createPokemonService(mockHttp).getDetailsById(1);
+  const details = await createPokemonService(pokemonHttpStub).getDetailsById(1);
   expect(details.name).toBe('bulbasaur');
   expect(details.types).toEqual(['grass', 'poison']);
   expect(details.stats).toEqual([
@@ -26,57 +31,3 @@ test('get details on single pokemon', async () => {
   ]);
 });
 
-const singlePokemonResponse = {
-  name: 'bulbasaur',
-  stats: [
-    {
-      base_stat: 45,
-      stat: {
-        name: 'hp',
-      },
-    },
-    {
-      base_stat: 49,
-      stat: {
-        name: 'attack',
-      },
-    },
-    {
-      base_stat: 49,
-      stat: {
-        name: 'defense',
-      },
-    },
-    {
-      base_stat: 65,
-      stat: {
-        name: 'special-attack',
-      },
-    },
-    {
-      base_stat: 65,
-      stat: {
-        name: 'special-defense',
-      },
-    },
-    {
-      base_stat: 45,
-      stat: {
-        name: 'speed',
-      },
-    },
-  ],
-  types: [
-    {
-      type: { name: 'grass' },
-    },
-    {
-      type: { name: 'poison' },
-    },
-  ],
-};
-
-const mockHttp = httpGetStub([{
-  url: 'https://pokeapi.co/api/v2/pokemon/1',
-  response: singlePokemonResponse,
-}]);
