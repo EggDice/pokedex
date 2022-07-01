@@ -44,8 +44,16 @@ export const createPokemonService = (httpService: HttpGet) => {
     return results.map(({ name }) => name);
   };
 
-  const getDetailsById = async (id: number) => {
-    const pokemonApi = httpService<PokemonApiResponse>(`${BASE_URL}/${id}`);
+  const getPokemonByToken = async <T> (token: T) => {
+    try {
+      return await handleSearch<T>(token);
+    } catch {
+      return undefined;
+    }
+  };
+
+  const handleSearch = async <T> (token: T) => {
+    const pokemonApi = httpService<PokemonApiResponse>(`${BASE_URL}/${token}`);
     const {
       name,
       types,
@@ -65,8 +73,9 @@ export const createPokemonService = (httpService: HttpGet) => {
   return {
     getImageById,
     getAllImages,
-    getDetailsById,
     getAllNames,
+    getPokemonById: getPokemonByToken<number>,
+    getPokemonByName: getPokemonByToken<string>,
   };
 };
 

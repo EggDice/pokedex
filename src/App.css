@@ -3,4 +3,5 @@
   height: 800px;
   border: 1px solid black;
   margin: 12px auto;
+  overflow-y: scroll;
 }

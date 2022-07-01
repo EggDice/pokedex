@@ -17,8 +17,8 @@ test('get all pokemon names', async () => {
   expect(names[0]).toBe('bulbasaur');
 });
 
-test('get details on single pokemon', async () => {
-  const details = await createPokemonService(pokemonHttpStub).getDetailsById(1);
+test('get details on single pokemon by id', async () => {
+  const details = await createPokemonService(pokemonHttpStub).getPokemonById(1);
   expect(details.name).toBe('bulbasaur');
   expect(details.types).toEqual(['grass', 'poison']);
   expect(details.stats).toEqual([
@@ -30,4 +30,24 @@ test('get details on single pokemon', async () => {
     { name: 'speed', value: 45 },
   ]);
 });
+
+test('get details on single pokemon by name', async () => {
+  const details = await createPokemonService(pokemonHttpStub).getPokemonByName('bulbasour');
+  expect(details.name).toBe('bulbasaur');
+  expect(details.types).toEqual(['grass', 'poison']);
+  expect(details.stats).toEqual([
+    { name: 'hp', value: 45 },
+    { name: 'attack', value: 49 },
+    { name: 'defense', value: 49 },
+    { name: 'special-attack', value: 65 },
+    { name: 'special-defense', value: 65 },
+    { name: 'speed', value: 45 },
+  ]);
+});
+
+test('get details on single pokemon by name if not found', async () => {
+  const details = await createPokemonService(pokemonHttpStub).getPokemonByName('not exist');
+  expect(details).toBe(undefined);
+});
+
 

@@ -65,6 +65,14 @@ export const pokemonHttpStub = httpGetStub([
     response: singlePokemonResponse,
   },
   {
+    url: 'https://pokeapi.co/api/v2/pokemon/bulbasour',
+    response: singlePokemonResponse,
+  },
+  {
+    url: 'https://pokeapi.co/api/v2/pokemon/not exist',
+    response: new Error('not found'),
+  },
+  {
     url: 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151',
     response: listPokemonResponse,
   },

@@ -6,6 +6,11 @@ type StubbedEndpoint<T = any> = {
 export const httpGetStub =
   (stubbedEndpoints: StubbedEndpoint[]) =>
     <T> (url: string) =>
-      async () =>
-        stubbedEndpoints
+      async () => {
+        const response = stubbedEndpoints
           .find((endpoint) => endpoint.url === url)?.response as T;
+        if (response instanceof Error) {
+          throw response;
+        }
+        return response;
+      }
