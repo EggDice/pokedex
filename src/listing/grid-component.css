@@ -5,6 +5,9 @@
   flex-wrap: wrap;
 }
 
+
 .listing-pokemon {
   list-style: none;
+  border: 1px solid black;
+  margin: 7px;
 }

@@ -1,6 +1,7 @@
 import type { HttpGet } from '../http';
-import type { ListingService } from '../listing/service';
-import { createListingService } from '../listing/service';
+import type { ListingFeature } from '../listing/listing-feature';
+import { appStore } from '../app/app-store';
+import { createListing } from '../listing/listing-feature';
 import { createPokemonService } from '../pokemon/service';
 
 type ExternalServices = {
@@ -8,7 +9,7 @@ type ExternalServices = {
 }
 
 type InternalServices = {
-  listing: ListingService,
+  listing: ListingFeature,
 }
 
 type Run = (services: InternalServices) => void
@@ -21,6 +22,7 @@ export const createApp = ({
   run: Run
 }) => {
   const pokemonService = createPokemonService(services.httpGet);
-  const listing = createListingService(pokemonService);
+  const store = appStore();
+  const listing = createListing({ store, pokemonService });
   run({ listing })
 }

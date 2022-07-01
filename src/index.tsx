@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 createApp({
   services: { httpGet },
   run: ({ listing }) => {
+    listing.loadPokemonList();
     const root = ReactDOM.createRoot(
       document.getElementById('root') as HTMLElement
     );

@@ -5,15 +5,17 @@ import { ImageGrid } from './grid-component';
 test('renders the list of pokemons', () => {
   const images = [
     {
-      src: 'source 1',
-      alt: 'pokemon image 1',
+      image: 'source-1',
+      name: 'pokemon image 1',
+      id: 1,
     },
     {
-      src: 'source 2',
-      alt: 'pokemon image 2',
+      image: 'source-2',
+      name: 'pokemon image 2',
+      id: 2,
     },
   ]
   render(<ImageGrid images={images} />);
   const image1 = screen.getByAltText('pokemon image 1');
-  expect(image1).toHaveAttribute('src', 'source 1');
+  expect(image1).toHaveAttribute('src', 'source-1');
 });

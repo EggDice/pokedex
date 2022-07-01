@@ -2,11 +2,11 @@ import React from 'react';
 import './App.css';
 import { ListingContext } from './listing/listing-context';
 import { Listing } from './listing/listing-component';
-import type { ListingService } from './listing/service';
+import type { ListingFeature } from './listing/listing-feature';
 
 type AppProps = {
   services: {
-    listing: ListingService,
+    listing: ListingFeature,
   },
 };
 

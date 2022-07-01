@@ -44,6 +44,12 @@ export const createPokemonService = (httpService: HttpGet) => {
     return results.map(({ name }) => name);
   };
 
+  const getAllPokemon = async () => {
+    const images = getAllImages();
+    const names = await getAllNames();
+    return names.map((name: string, i: number) => ({ name, id: i + 1, image: images[i] }));
+  };
+
   const getPokemonByToken = async <T> (token: T) => {
     try {
       return await handleSearch<T>(token);
@@ -71,9 +77,7 @@ export const createPokemonService = (httpService: HttpGet) => {
   };
 
   return {
-    getImageById,
-    getAllImages,
-    getAllNames,
+    getAllPokemon,
     getPokemonById: getPokemonByToken<number>,
     getPokemonByName: getPokemonByToken<string>,
   };

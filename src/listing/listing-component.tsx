@@ -1,18 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ListingContext } from './listing-context';
 import { ImageGrid } from './grid-component';
+import { useObservableState } from 'observable-hooks'
+import type { ListingFeature } from './listing-feature';
 
 export const Listing = () => {
-  const [ images, setImages ] = useState<{src: string, alt: string}[]>([]);
-  const listingService = useContext(ListingContext);
+  const { pokemons$, isListLoaded$ } = useContext(ListingContext) as ListingFeature;
+  const pokemons = useObservableState(pokemons$, []);
+  const isListLoaded = useObservableState(isListLoaded$, false)
 
-  // Not optimal it should use fetch then render
-  useEffect(() => {
-    listingService?.listImagesAndAlts().then((imgs) => {
-      setImages(imgs);
-    })
-  });
-
-
-  return <ImageGrid images={images} />
+  return isListLoaded ? <ImageGrid images={pokemons} /> : <p>Loading...</p>
 };
