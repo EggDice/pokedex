@@ -1,0 +1,14 @@
+.listing {
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.loader {
+  margin-top: 300px;
+}
+
+.modal {
+  z-index: 100;
+}

@@ -17,6 +17,7 @@ type PokemonType = {
 };
 
 type PokemonApiResponse = {
+  id: number,
   name: string,
   stats: PokemonStat[],
   types: PokemonType[],
@@ -64,6 +65,7 @@ export const createPokemonService = (httpService: HttpGet) => {
       name,
       types,
       stats,
+      id,
     } = await pokemonApi();
     const normalizedTypes = types.map(({ type: { name } }) => name);
     const normalizedStats = stats.map(
@@ -71,6 +73,8 @@ export const createPokemonService = (httpService: HttpGet) => {
     );
     return {
       name,
+      id,
+      image: getImageById(id),
       types: normalizedTypes,
       stats: normalizedStats,
     };

@@ -15,8 +15,13 @@ export const createListing =
     const command = listingCommand(store);
     const {
       handleFetchAll,
+      handleSearch,
+      handleSelect,
     } = listingEffect(pokemonService);
+
     store.registerEffect(handleFetchAll);
+    store.registerEffect(handleSearch);
+    store.registerEffect(handleSelect);
 
     return {
       ...command,

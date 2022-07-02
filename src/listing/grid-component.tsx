@@ -5,14 +5,19 @@ type Image = {
   image: string,
   name: string,
   id: number,
-}
+};
 
-export const ImageGrid = ({images}: { images: Image[] }) => {
+type Props = {
+  images: Image[],
+  onSelect: (id: number) => void,
+};
+
+export const ImageGrid = ({images, onSelect}: Props) => {
   return <ul data-testid="pokemon-list" className="listing-grid">
     {
       images.map(
         ({image, name, id}) =>
-          <li key={id} className="listing-pokemon">
+          <li key={id} onClick={() => {onSelect(id)}} className="listing-pokemon">
             <img alt={name} src={image} className="pokemon-image"/>
           </li>)
     }

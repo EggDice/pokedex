@@ -26,7 +26,9 @@ test('get details on single pokemon by id', async () => {
 });
 
 test('get details on single pokemon by name', async () => {
-  const details = await pokemonService.getPokemonByName('bulbasour');
+  const details = await pokemonService.getPokemonByName('bulbasaur');
+  expect(details?.id).toBe(1);
+  expect((details?.image?.length ?? 0) > 0).toBe(true);
   expect(details?.name).toBe('bulbasaur');
   expect(details?.types).toEqual(['grass', 'poison']);
   expect(details?.stats).toEqual([

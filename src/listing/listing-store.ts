@@ -45,7 +45,7 @@ export type ListingEventSearch =
   PayloadStoreEvent<'listing/search', string>;
 
 export type ListingEventSelect =
-  PayloadStoreEvent<'listing/search', number>;
+  PayloadStoreEvent<'listing/select', number>;
 
 export type ListingEventDetailsLoaded =
   PayloadStoreEvent<'listing/detailsLoaded', PokemonDetails>;
@@ -113,5 +113,8 @@ export const {
   eventCreators: {
     fetchAll: fetchAllCreator,
     listLoaded: listLoadedCreator,
+    search: searchCreator,
+    detailsLoaded: detailsLoadedCreator,
+    select: selectCreator,
   }
 } = listingSlice;

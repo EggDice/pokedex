@@ -49,6 +49,7 @@ const singlePokemonResponse = {
       type: { name: 'poison' },
     },
   ],
+  id: 1,
 };
 
 const listPokemonResponse = {
@@ -65,7 +66,7 @@ export const pokemonHttpStub = httpGetStub([
     response: singlePokemonResponse,
   },
   {
-    url: 'https://pokeapi.co/api/v2/pokemon/bulbasour',
+    url: 'https://pokeapi.co/api/v2/pokemon/bulbasaur',
     response: singlePokemonResponse,
   },
   {

@@ -1,0 +1,11 @@
+.search {
+  margin: 7px;
+  position: fixed;
+  top: 15px;
+}
+
+.listing-pokemon {
+  list-style: none;
+  border: 1px solid black;
+  margin: 7px;
+}

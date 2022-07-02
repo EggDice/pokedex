@@ -15,7 +15,7 @@ test('renders the list of pokemons', () => {
       id: 2,
     },
   ]
-  render(<ImageGrid images={images} />);
+  render(<ImageGrid images={images} onSelect={() => {}} />);
   const image1 = screen.getByAltText('pokemon image 1');
   expect(image1).toHaveAttribute('src', 'source-1');
 });
