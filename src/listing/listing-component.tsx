@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { ListingContext } from './listing-context';
 import { ImageGrid } from './grid-component';
 import { SearchBox } from './search-box';
+import { DetailsDialog } from './details-modal';
 import { useObservableState } from 'observable-hooks'
 import type { ListingFeature } from './listing-feature';
 import './listing-component.css';
@@ -23,34 +24,15 @@ export const Listing = () => {
   const isModalOpen = useObservableState(isModalOpen$, false)
 
   return <>
-    <dialog className="modal" open={isModalOpen}>
-      {
-        isDetailsLoaded ?
-          <>
-            <h2>{ details?.name }</h2>
-            <dl>
-              <dt>Types</dt>
-              <dd>{ details?.types.join(' ') }</dd>
-              {
-                details?.stats.map(({ name, value }) => (
-                  <React.Fragment key={name}>
-                    <dt>{name}</dt>
-                    <dd>{value}</dd>
-                  </React.Fragment>
-                ))
-              }
-            </dl>
-            <footer>
-              <button onClick={() => select(0)}>Close</button>
-            </footer>
-          </>
-          :
-          <p>Loading...</p>
-      }
-    </dialog>
+    <DetailsDialog
+      isDetailsLoaded={isDetailsLoaded}
+      isModalOpen={isModalOpen}
+      details={details}
+      onClose={() => select(0)}
+    />
     <section className="listing">
       <SearchBox onSearch={(term) => { search(term); }} />
-      { isListLoaded ? <ImageGrid onSelect={select} images={pokemons} /> : <p className="loader">Loading...</p> }
+      <ImageGrid onSelect={select} images={pokemons} isListLoaded={isListLoaded}/>
     </section>;
   </>
 };

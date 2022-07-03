@@ -22,7 +22,7 @@ type Stat = {
   value: number,
 }
 
-type PokemonDetails = {
+export type PokemonDetails = {
   name: string,
   types: string[],
   stats: Stat[],

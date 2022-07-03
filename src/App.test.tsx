@@ -16,8 +16,8 @@ test('renders the list of pokemons', () => {
   } as unknown as PokemonService;
   const listing = createListing({ store, pokemonService });
   render(<App services={{ listing }} />);
-  const loader = screen.getByText('Loading...');
-  expect(loader).toBeInTheDocument();
+  const loader = screen.queryAllByText('Loading...');
+  expect(loader[0]).toBeInTheDocument();
 });
 
 const mockObservableReturn = (value: any) => of(value).pipe(delay(1));
