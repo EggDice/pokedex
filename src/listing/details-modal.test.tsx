@@ -56,6 +56,8 @@ test('don\'t show loader if the details are loaded', () => {
 
 test('show details', () => {
   const pokemon = {
+    id: 1,
+    image: '',
     name: 'bulbasaur',
     types: ['grass', 'water'],
     stats: [{

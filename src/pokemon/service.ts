@@ -1,4 +1,6 @@
 import type { HttpGet } from '../http';
+import { map } from 'rxjs/operators';
+import { defer, catchError, of } from 'rxjs';
 
 // We only handle only the original first 151
 const POKEMON_COUNT = 151;
@@ -39,45 +41,44 @@ export const createPokemonService = (httpService: HttpGet) => {
     Array.from({ length: POKEMON_COUNT }, (_, i) => i + 1)
       .map(getImageById);
 
-  const getAllNames = async () => {
+  const getAllNames = () => {
     const listPokemonApi = httpService<ListPokemonApiRespnse>(`${BASE_URL}/?offset=0&limit=151`);
-    const { results } = await listPokemonApi();
-    return results.map(({ name }) => name);
-  };
-
-  const getAllPokemon = async () => {
-    const images = getAllImages();
-    const names = await getAllNames();
-    return names.map((name: string, i: number) => ({ name, id: i + 1, image: images[i] }));
-  };
-
-  const getPokemonByToken = async <T> (token: T) => {
-    try {
-      return await handleSearch<T>(token);
-    } catch {
-      return undefined;
-    }
-  };
-
-  const handleSearch = async <T> (token: T) => {
-    const pokemonApi = httpService<PokemonApiResponse>(`${BASE_URL}/${token}`);
-    const {
-      name,
-      types,
-      stats,
-      id,
-    } = await pokemonApi();
-    const normalizedTypes = types.map(({ type: { name } }) => name);
-    const normalizedStats = stats.map(
-      ({ base_stat, stat: { name } }) => ({ name, value: base_stat })
+    return defer(listPokemonApi).pipe(
+      map(({ results }) => (results ?? []).map(({ name }) => name))
     );
-    return {
-      name,
-      id,
-      image: getImageById(id),
-      types: normalizedTypes,
-      stats: normalizedStats,
-    };
+  };
+
+  const getAllPokemon = () => {
+    const images = getAllImages();
+    const names$ = getAllNames();
+    return names$.pipe(
+      map(
+        (names) =>
+          names.map((name: string, i: number) => (
+            { name, id: i + 1, image: images[i] }
+          ))
+      ),
+    );
+  };
+
+  const getPokemonByToken = <T> (token: T) => {
+    const pokemonApi = httpService<PokemonApiResponse>(`${BASE_URL}/${token}`);
+    return defer(pokemonApi).pipe(
+      map(({ name, types, stats, id}) => {
+        const normalizedTypes = types.map(({ type: { name } }) => name);
+        const normalizedStats = stats.map(
+          ({ base_stat, stat: { name } }) => ({ name, value: base_stat })
+        );
+        return {
+          name,
+          id,
+          image: getImageById(id),
+          types: normalizedTypes,
+          stats: normalizedStats,
+        };
+      }),
+      catchError((err) => of(undefined)),
+    );
   };
 
   return {

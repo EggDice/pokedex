@@ -23,6 +23,8 @@ type Stat = {
 }
 
 export type PokemonDetails = {
+  id: number,
+  image: string,
   name: string,
   types: string[],
   stats: Stat[],

@@ -37,7 +37,7 @@ export const listingEffect = (pokemonService: PokemonService) => {
       filterByType<ListingEvent>('listing/select'),
       map(({ payload }) => payload),
       switchMap(pokemonService.getPokemonById),
-      map(p => p ?? { name: '', types: [], stats: [] }),
+      map(p => p ?? { name: '', types: [], stats: [], id: 0, image: ''  }),
       map(detailsLoadedCreator),
     )
 

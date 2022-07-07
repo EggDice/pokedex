@@ -1,3 +1,6 @@
+import { of, throwError, timer } from 'rxjs';
+import { delay, mergeMap } from 'rxjs/operators';
+
 type StubbedEndpoint<T = any> = {
   url: string,
   response: T,
@@ -6,11 +9,13 @@ type StubbedEndpoint<T = any> = {
 export const httpGetStub =
   (stubbedEndpoints: StubbedEndpoint[]) =>
     <T> (url: string) =>
-      async () => {
+      () => {
         const response = stubbedEndpoints
           .find((endpoint) => endpoint.url === url)?.response as T;
         if (response instanceof Error) {
-          throw response;
+          return timer(1).pipe(
+            mergeMap(() => throwError(response))
+          ) as unknown as Promise<never>;
         }
-        return response;
+        return of(response).pipe(delay(1)) as unknown as Promise<T>;
       }

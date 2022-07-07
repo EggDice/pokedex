@@ -1,5 +1,4 @@
 import { listingSlice } from './listing-store';
-
 import { coreMarbles } from '../core/marbles';
 import { createCoreStore } from '../core/store';
 
@@ -106,7 +105,7 @@ test('Select pokemon loaded', () => {
     details: undefined,
   };
   const state = reducer(initialState, detailsLoaded({
-    name: 'bulbasour', types: [], stats: [],
+    name: 'bulbasour', types: [], stats: [], image: '', id: 1,
   }));
   expect(state).toEqual({
     listingStatus: 'loaded',
@@ -117,6 +116,8 @@ test('Select pokemon loaded', () => {
       name: 'bulbasour',
       types: [],
       stats: [],
+      image: '',
+      id: 1,
     },
   });
 });
