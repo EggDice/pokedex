@@ -1,4 +1,4 @@
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { coreMarbles } from '../core/marbles';
 import { appStore } from '../app/app-store';
 import { createListing } from './listing-feature';
@@ -6,37 +6,43 @@ import { pokemonServiceFake as pokemonService } from '../pokemon/fake';
 
 test('load pokemon list', coreMarbles((m) => {
   const store = appStore();
-  const listing = createListing({store, pokemonService});
-  listing.loadPokemonList();
-  const isListLoaded$ = listing.isListLoaded$.pipe(distinctUntilChanged())
+  const {
+    loadPokemonList,
+    isListLoaded$,
+    pokemons$,
+  } = createListing({ store, pokemonService });
+  loadPokemonList();
   m.expect(isListLoaded$).toBeObservable(m.coldBoolean('ft'))
-  const pokemons$ = listing.pokemons$.pipe(
-    distinctUntilChanged(),
+  const pokemonsLength$ = pokemons$.pipe(
     map(({ length }) => length),
   );
-  m.expect(pokemons$).toBeObservable(m.cold('01', { '0': 0, '1': 151 }));
+  m.expect(pokemonsLength$).toBeObservable(m.cold('01', { '0': 0, '1': 151 }));
 }));
 
 test('search pokemon', coreMarbles((m) => {
   const store = appStore();
-  const listing = createListing({store, pokemonService});
-  listing.search('bulbasaur');
-  const isListLoaded$ = listing.isListLoaded$.pipe(distinctUntilChanged())
+  const {
+    search,
+    isListLoaded$,
+    pokemons$,
+  } = createListing({ store, pokemonService });
+  search('bulbasaur');
   m.expect(isListLoaded$).toBeObservable(m.coldBoolean('ft'))
-  const pokemons$ = listing.pokemons$.pipe(
-    distinctUntilChanged(),
+  const pokemonsLength$ = pokemons$.pipe(
     map(({ length }) => length),
   );
-  m.expect(pokemons$).toBeObservable(m.cold('01', { '0': 0, '1': 1 }));
+  m.expect(pokemonsLength$).toBeObservable(m.cold('01', { '0': 0, '1': 1 }));
 }));
 
 test('select pokemon', coreMarbles((m) => {
   const store = appStore();
-  const listing = createListing({store, pokemonService});
-  listing.select(1);
-  const isDetailsLoaded$ = listing.isDetailsLoaded$.pipe(distinctUntilChanged())
+  const {
+    select,
+    isDetailsLoaded$,
+    details$,
+  } = createListing({ store, pokemonService });
+  select(1);
   m.expect(isDetailsLoaded$).toBeObservable(m.coldBoolean('ft'))
-  const details$ = listing.details$.pipe(distinctUntilChanged())
   m.expect(details$).toBeObservable(m.cold('01', {
     '0': undefined,
     '1': {
