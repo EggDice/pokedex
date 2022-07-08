@@ -1,9 +1,9 @@
-import { createCoreStoreSlice } from '../core/store';
+import { createCoreStoreSlice } from '@core/store';
 import type {
   PayloadStoreEvent,
   StoreEvent,
   CoreStoreSlice,
-} from '../core/store';
+} from '@core/store';
 
 export type ListingStatus =
   | 'initial'

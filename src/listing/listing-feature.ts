@@ -1,6 +1,6 @@
 import { listingQuery } from './listing-query';
 import { listingEffect } from './listing-effect';
-import type { AppStore } from '@app/app-store';
+import type { AppStore } from '@/app/app-store';
 import { PokemonService } from '../pokemon/service';
 import { listingCommand } from './listing-command';
 
