@@ -53,7 +53,7 @@ export interface CoreStoreConfig<
 
 export type StoreEventCreator<EVENT> =
   EVENT extends { type: infer TYPE, payload: infer PAYLOAD } ?
-      (payload: PAYLOAD) => PayloadStoreEvent<TYPE, PAYLOAD>:
+      (payload: PAYLOAD) => PayloadStoreEvent<TYPE, PAYLOAD> :
       () => EVENT
 
 export type StoreEventCreators<

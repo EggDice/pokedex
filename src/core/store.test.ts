@@ -1,7 +1,7 @@
 import { mapTo } from 'rxjs/operators'
-import { coreMarbles } from './marbles'
-import { createCoreStore, createCoreStoreSlice } from './store'
-import type { CoreReducer } from './store'
+import { coreMarbles } from '@core/marbles'
+import { createCoreStore, createCoreStoreSlice } from '@core/store'
+import type { CoreReducer } from '@core/store'
 
 type CountState = number
 

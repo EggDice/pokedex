@@ -1,68 +1,56 @@
-import { createPokemonService } from './service';
-import { pokemonHttpStub } from './fake';
-import { coreMarbles } from '../core/marbles';
-import { map } from 'rxjs/operators';
-import { httpGet } from '../http';
-import type { Observable } from 'rxjs';
-import type { PokemonDetails } from '../listing/listing-store';
+import {
+  createPokemonService,
+} from './'
+import type { Pokemon } from './'
 
-const pokemonService = createPokemonService(pokemonHttpStub);
+import { map } from 'rxjs/operators'
+import type { Observable } from 'rxjs'
 
-test('get all pokemon', coreMarbles((m) => {
-  const pokemons$ = pokemonService.getAllPokemon();
-  const image$ = pokemons$.pipe(map(([ { image } ]) => image));
-  m.expect(image$).toBeObservable(m.cold('-(s|)', {
-    's': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
-  }));
-  const id$ = pokemons$.pipe(map(([ { id } ]) => id));
-  m.expect(id$).toBeObservable(m.cold('-(1|)', { '1': 1 }));
-  const name$ = pokemons$.pipe(map(([ { name } ]) => name));
-  m.expect(name$).toBeObservable(m.cold('-(b|)', { 'b': 'bulbasaur' }));
-}));
+import {
+  pokemonHttpStub,
+  BULBASAUR,
+  BULBASAUR_LISTED,
+} from './fake'
+import { coreMarbles } from '@core/marbles'
+import { httpGet } from '@/http'
+
+const pokemonService = createPokemonService(pokemonHttpStub)
 
 test('smoke for injecting real dependencies', () => {
-  createPokemonService(httpGet);
-});
+  createPokemonService(httpGet)
+})
+
+test('get all pokemon', coreMarbles((m) => {
+  const pokemons$ = pokemonService.getAllPokemon()
+  const image$ = pokemons$.pipe(map(([{ image }]) => image))
+  m.expect(image$).toBeObservable('-(i|)', { i: BULBASAUR_LISTED.image })
+  const id$ = pokemons$.pipe(map(([{ id }]) => id))
+  m.expect(id$).toBeObservable('-(1|)', { 1: 1 })
+  const name$ = pokemons$.pipe(map(([{ name }]) => name))
+  m.expect(name$).toBeObservable('-(b|)', { b: 'bulbasaur' })
+}))
 
 test('get details on single pokemon by id', coreMarbles((m) => {
-  const details$ = pokemonService.getPokemonById(1) as Observable<PokemonDetails>;
-  const name$ = details$.pipe(map(({ name }) => name));
-  m.expect(name$).toBeObservable(m.cold('-(b|)', { 'b': 'bulbasaur' }));
-  const types$ = details$.pipe(map(({ types }) => types));
-  m.expect(types$).toBeObservable(m.cold('-(t|)', { 't': ['grass', 'poison'] }));
-  const stats$ = details$.pipe(map(({ stats }) => stats));
-  m.expect(stats$).toBeObservable(m.cold('-(s|)', {
-    's': [
-      { name: 'hp', value: 45 },
-      { name: 'attack', value: 49 },
-      { name: 'defense', value: 49 },
-      { name: 'special-attack', value: 65 },
-      { name: 'special-defense', value: 65 },
-      { name: 'speed', value: 45 },
-    ]
-  }));
-}));
+  const details$ = pokemonService.getPokemonById(1) as Observable<Pokemon>
+  const name$ = details$.pipe(map(({ name }) => name))
+  m.expect(name$).toBeObservable('-(b|)', { b: 'bulbasaur' })
+  const types$ = details$.pipe(map(({ types }) => types))
+  m.expect(types$).toBeObservable('-(t|)', { t: BULBASAUR.types })
+  const stats$ = details$.pipe(map(({ stats }) => stats))
+  m.expect(stats$).toBeObservable('-(s|)', { s: BULBASAUR.stats })
+}))
 
 test('get details on single pokemon by name', coreMarbles((m) => {
-  const details$ = pokemonService.getPokemonByName('bulbasaur') as Observable<PokemonDetails>;
-  const name$ = details$.pipe(map(({ name }) => name));
-  m.expect(name$).toBeObservable(m.cold('-(b|)', { 'b': 'bulbasaur' }));
-  const types$ = details$.pipe(map(({ types }) => types));
-  m.expect(types$).toBeObservable(m.cold('-(t|)', { 't': ['grass', 'poison'] }));
-  const stats$ = details$.pipe(map(({ stats }) => stats));
-  m.expect(stats$).toBeObservable(m.cold('-(s|)', {
-    's': [
-      { name: 'hp', value: 45 },
-      { name: 'attack', value: 49 },
-      { name: 'defense', value: 49 },
-      { name: 'special-attack', value: 65 },
-      { name: 'special-defense', value: 65 },
-      { name: 'speed', value: 45 },
-    ]
-  }));
-}));
+  const details$ = pokemonService.getPokemonByName('bulbasaur') as Observable<Pokemon>
+  const name$ = details$.pipe(map(({ name }) => name))
+  m.expect(name$).toBeObservable('-(b|)', { b: 'bulbasaur' })
+  const types$ = details$.pipe(map(({ types }) => types))
+  m.expect(types$).toBeObservable('-(t|)', { t: BULBASAUR.types })
+  const stats$ = details$.pipe(map(({ stats }) => stats))
+  m.expect(stats$).toBeObservable('-(s|)', { s: BULBASAUR.stats })
+}))
 
 test('get details on single pokemon by name if not found', coreMarbles((m) => {
-  const details$ = pokemonService.getPokemonByName('not exist');
-  m.expect(details$).toBeObservable(m.cold('-(0|)', { '0': undefined }));
-}));
+  const details$ = pokemonService.getPokemonByName('not exist')
+  m.expect(details$).toBeObservable('-(0|)', { 0: undefined })
+}))

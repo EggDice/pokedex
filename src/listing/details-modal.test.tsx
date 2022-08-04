@@ -1,6 +1,6 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { DetailsDialog } from './details-modal';
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { DetailsDialog } from './details-modal'
 
 test('opens on isModalOpen', () => {
   render(
@@ -9,11 +9,11 @@ test('opens on isModalOpen', () => {
       isDetailsLoaded={true}
       details={undefined}
       onClose={() => {}}
-    />
-  );
-  const dialog = screen.getByRole('dialog');
-  expect(dialog).toBeVisible();
-});
+    />,
+  )
+  const dialog = screen.getByRole('dialog')
+  expect(dialog).toBeVisible()
+})
 
 test('closes on isModalOpen', () => {
   render(
@@ -22,11 +22,11 @@ test('closes on isModalOpen', () => {
       isDetailsLoaded={true}
       details={undefined}
       onClose={() => {}}
-    />
-  );
-  const dialog = screen.getByRole('dialog', { hidden: true });
-  expect(dialog).not.toBeVisible();
-});
+    />,
+  )
+  const dialog = screen.getByRole('dialog', { hidden: true })
+  expect(dialog).not.toBeVisible()
+})
 
 test('show loader till the details are not loaded', () => {
   render(
@@ -35,11 +35,11 @@ test('show loader till the details are not loaded', () => {
       isDetailsLoaded={false}
       details={undefined}
       onClose={() => {}}
-    />
-  );
-  const loader = screen.getByText('Loading');
-  expect(loader).toBeVisible();
-});
+    />,
+  )
+  const loader = screen.getByText('Loading')
+  expect(loader).toBeVisible()
+})
 
 test('don\'t show loader if the details are loaded', () => {
   render(
@@ -48,11 +48,11 @@ test('don\'t show loader if the details are loaded', () => {
       isDetailsLoaded={true}
       details={undefined}
       onClose={() => {}}
-    />
-  );
-  const loader = screen.queryByText('Loading');
-  expect(loader).not.toBeInTheDocument();
-});
+    />,
+  )
+  const loader = screen.queryByText('Loading')
+  expect(loader).not.toBeInTheDocument()
+})
 
 test('show details', () => {
   const pokemon = {
@@ -71,32 +71,31 @@ test('show details', () => {
       isDetailsLoaded={true}
       details={pokemon}
       onClose={() => {}}
-    />
+    />,
   )
-  const name = screen.getByText('bulbasaur');
-  expect(name).toBeInTheDocument();
-  const type1 = screen.getByText(/grass/);
-  expect(type1).toBeInTheDocument();
-  const type2 = screen.getByText(/water/);
-  expect(type2).toBeInTheDocument();
-  const stat = screen.getByText('attack');
-  expect(stat).toBeInTheDocument();
-  const statValue = screen.getByText('65');
-  expect(statValue).toBeInTheDocument();
-});
+  const name = screen.getByText('bulbasaur')
+  expect(name).toBeInTheDocument()
+  const type1 = screen.getByText(/grass/)
+  expect(type1).toBeInTheDocument()
+  const type2 = screen.getByText(/water/)
+  expect(type2).toBeInTheDocument()
+  const stat = screen.getByText('attack')
+  expect(stat).toBeInTheDocument()
+  const statValue = screen.getByText('65')
+  expect(statValue).toBeInTheDocument()
+})
 
 test('calls close callback on close clicked', () => {
-  let called;
+  let called
   render(
     <DetailsDialog
       isModalOpen={true}
       isDetailsLoaded={true}
       details={undefined}
       onClose={() => { called = true }}
-    />
-  );
-  const close = screen.getByText('close');
-  fireEvent.click(close);
-  expect(called).toBe(true);
-});
-
+    />,
+  )
+  const close = screen.getByText('close')
+  fireEvent.click(close)
+  expect(called).toBe(true)
+})

@@ -1,26 +1,26 @@
-'use strict';
+'use strict'
 
-const babelJest = require('babel-jest').default;
-const tsPaths = require('../../tsconfig.paths.json').compilerOptions.paths;
+const babelJest = require('babel-jest').default
+const tsPaths = require('../../tsconfig.paths.json').compilerOptions.paths
 
-const pathPairs = Object.entries(tsPaths).map(([ from, [ to ] ]) =>
-  [from, to].map(path => path.replaceAll('/*', ''))
-);
+const pathPairs = Object.entries(tsPaths).map(([from, [to]]) =>
+  [from, to].map(path => path.replaceAll('/*', '')),
+)
 
-const alias = Object.fromEntries(pathPairs);
+const alias = Object.fromEntries(pathPairs)
 
 const hasJsxRuntime = (() => {
   if (process.env.DISABLE_NEW_JSX_TRANSFORM === 'true') {
-    return false;
+    return false
   }
 
   try {
-    require.resolve('react/jsx-runtime');
-    return true;
+    require.resolve('react/jsx-runtime')
+    return true
   } catch (e) {
-    return false;
+    return false
   }
-})();
+})()
 
 module.exports = babelJest.createTransformer({
   presets: [
@@ -41,4 +41,4 @@ module.exports = babelJest.createTransformer({
       },
     ],
   ],
-});
+})

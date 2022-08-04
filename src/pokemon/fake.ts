@@ -1,5 +1,5 @@
-import { createPokemonService } from './service';
-import { httpGetStub } from '../http/stub';
+import { createPokemonService } from './service'
+import { httpGetStub } from '../http/stub'
 
 const singlePokemonResponse = {
   name: 'bulbasaur',
@@ -50,7 +50,7 @@ const singlePokemonResponse = {
     },
   ],
   id: 1,
-};
+}
 
 const listPokemonResponse = {
   results: Array.from({ length: 151 }, (_, i) => (
@@ -77,6 +77,27 @@ export const pokemonHttpStub = httpGetStub([
     url: 'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=151',
     response: listPokemonResponse,
   },
-]);
+])
 
-export const pokemonServiceFake = createPokemonService(pokemonHttpStub);
+export const pokemonServiceFake = createPokemonService(pokemonHttpStub)
+
+export const BULBASAUR = {
+  id: 1,
+  name: 'bulbasaur',
+  image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
+  types: ['grass', 'poison'],
+  stats: [
+    { name: 'hp', value: 45 },
+    { name: 'attack', value: 49 },
+    { name: 'defense', value: 49 },
+    { name: 'special-attack', value: 65 },
+    { name: 'special-defense', value: 65 },
+    { name: 'speed', value: 45 },
+  ],
+}
+
+export const BULBASAUR_LISTED = {
+  id: 1,
+  name: 'bulbasaur',
+  image: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
+}

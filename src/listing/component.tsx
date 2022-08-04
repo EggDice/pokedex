@@ -1,13 +1,13 @@
-import React, { useContext } from 'react';
-import { ListingContext } from './listing-context';
-import { ImageGrid } from './grid-component';
-import { SearchBox } from './search-box';
-import { DetailsDialog } from './details-modal';
+import React, { useContext } from 'react'
+import { ListingContext } from './context'
+import { ImageGrid } from './grid'
+import { SearchBox } from './search-box'
+import { DetailsDialog } from './details-modal'
 import { useObservableState } from 'observable-hooks'
-import type { ListingFeature } from './listing-feature';
-import './listing-component.css';
+import type { ListingFeature } from './feature'
+import './component.css'
 
-export const Listing = () => {
+export const Listing: React.FC = () => {
   const {
     pokemons$,
     details$,
@@ -15,10 +15,10 @@ export const Listing = () => {
     isDetailsLoaded$,
     isModalOpen$,
     search,
-    select
-  } = useContext(ListingContext) as ListingFeature;
-  const pokemons = useObservableState(pokemons$, []);
-  const details = useObservableState(details$, undefined);
+    select,
+  } = useContext(ListingContext) as ListingFeature
+  const pokemons = useObservableState(pokemons$, [])
+  const details = useObservableState(details$, undefined)
   const isListLoaded = useObservableState(isListLoaded$, false)
   const isDetailsLoaded = useObservableState(isDetailsLoaded$, false)
   const isModalOpen = useObservableState(isModalOpen$, false)
@@ -31,8 +31,8 @@ export const Listing = () => {
       onClose={() => select(0)}
     />
     <section className="listing">
-      <SearchBox onSearch={(term) => { search(term); }} />
+      <SearchBox onSearch={(term) => { search(term) }} />
       <ImageGrid onSelect={select} images={pokemons} isListLoaded={isListLoaded}/>
     </section>;
   </>
-};
+}

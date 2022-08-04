@@ -1,7 +1,7 @@
-import { listingCommand } from './listing-command';
-import { map } from 'rxjs/operators';
-import { coreMarbles } from '../core/marbles';
-import { appStore } from '../app/app-store';
+import { listingCommand } from './command'
+import { map } from 'rxjs/operators'
+import { coreMarbles } from '../core/marbles'
+import { appStore } from '../app/app-store'
 
 test('load pokemon list', coreMarbles((m) => {
   const store = appStore()
@@ -22,7 +22,7 @@ test('load pokemon list', coreMarbles((m) => {
 test('set search term', coreMarbles((m) => {
   const store = appStore()
   const command = listingCommand(store)
-  command.search('bulbasaur');
+  command.search('bulbasaur')
   const listingState$ = store.state$.pipe(map(({ listing }) => listing))
   m.expect(listingState$).toBeObservable('l', {
     l: {
@@ -38,7 +38,7 @@ test('set search term', coreMarbles((m) => {
 test('select pokemon', coreMarbles((m) => {
   const store = appStore()
   const command = listingCommand(store)
-  command.select(1);
+  command.select(1)
   const listingState$ = store.state$.pipe(map(({ listing }) => listing))
   m.expect(listingState$).toBeObservable('l', {
     l: {
@@ -50,4 +50,3 @@ test('select pokemon', coreMarbles((m) => {
     },
   })
 }))
-

@@ -1,6 +1,6 @@
 export const httpGet = <T> (url: string) => async (): Promise<T> => {
-  const response = await fetch(url);
-  return response.json();
-};
+  const response = await fetch(url)
+  return await response.json()
+}
 
-export type HttpGet = typeof httpGet;
+export type HttpGet = typeof httpGet

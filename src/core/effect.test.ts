@@ -1,7 +1,7 @@
-import { filterByType } from './effect'
-import { coreMarbles } from './marbles'
+import { filterByType } from '@core/effect'
+import { coreMarbles } from '@core/marbles'
 import { map } from 'rxjs/operators'
-import type { StoreEvent, PayloadStoreEvent } from './store'
+import type { StoreEvent, PayloadStoreEvent } from '@core/store'
 import type { Observable } from 'rxjs'
 
 test('type safe filtering', coreMarbles((m) => {

@@ -1,4 +1,4 @@
-import { coreMarbles } from './marbles'
+import { coreMarbles } from '@core/marbles'
 import { Subject } from 'rxjs'
 
 test('it should run a single function', coreMarbles((m) => {
@@ -20,4 +20,8 @@ test('it should run multiple functions', coreMarbles((m) => {
 
 test('it should create a boolean marble', coreMarbles((m) => {
   m.expect(m.coldBoolean('tf')).toBeObservable('tf', { t: true, f: false })
+}))
+
+test('it should assert a boolean marble', coreMarbles((m) => {
+  m.expect(m.cold('tf', { t: true, f: false })).toBeObservableBoolean('tf')
 }))

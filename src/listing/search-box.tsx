@@ -1,16 +1,16 @@
-import React, { useRef } from 'react';
-import type { FormEvent } from 'react';
-import './search-box.css';
+import React, { useRef } from 'react'
+import type { FormEvent } from 'react'
+import './search-box.css'
 
-type Props = {
-  onSearch: (term: string) => void,
-};
+interface Props {
+  onSearch: (term: string) => void
+}
 
-export const SearchBox = ({ onSearch }: Props) =>{
-  const input = useRef<HTMLInputElement>(null);
-  const submitHandler = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    onSearch(input?.current?.value ?? '');
+export const SearchBox: React.FC<Props> = ({ onSearch }: Props) => {
+  const input = useRef<HTMLInputElement>(null)
+  const submitHandler = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault()
+    onSearch(input?.current?.value ?? '')
   }
 
   return <form onSubmit={submitHandler} className="search">
@@ -18,4 +18,3 @@ export const SearchBox = ({ onSearch }: Props) =>{
     <input className="search-submit" type="submit" value="Search"/>
   </form>
 }
-

@@ -1,92 +1,77 @@
-import { createCoreStoreSlice } from '@core/store';
+import { createCoreStoreSlice } from '@core/store'
 import type {
   PayloadStoreEvent,
   StoreEvent,
   CoreStoreSlice,
-} from '@core/store';
+} from '@core/store'
+import type {
+  Pokemon,
+  ListedPokemon,
+} from '@/pokemon'
 
 export type ListingStatus =
   | 'initial'
   | 'loading-list'
   | 'loading-details'
-  | 'loaded';
+  | 'loaded'
 
-type ListedPokemon = {
-  name: string,
-  image: string,
-  id: number,
+export interface ListingState {
+  listingStatus: ListingStatus
+  searchTerm: string
+  pokemons: ListedPokemon[]
+  selectedPokemon: number
+  details: Pokemon | undefined
 }
 
-type Stat = {
-  name: string,
-  value: number,
-}
-
-export type PokemonDetails = {
-  id: number,
-  image: string,
-  name: string,
-  types: string[],
-  stats: Stat[],
-}
-
-export type ListingState = {
-  listingStatus: ListingStatus,
-  searchTerm: string,
-  pokemons: ListedPokemon[],
-  selectedPokemon: number,
-  details: PokemonDetails | undefined,
-}
-
-export type ListingEventFetcAll = StoreEvent<'listing/fetchAll'>;
+export type ListingEventFetcAll = StoreEvent<'listing/fetchAll'>
 
 export type ListingEventListLoaded =
-  PayloadStoreEvent<'listing/listLoaded', ListedPokemon[]>;
+  PayloadStoreEvent<'listing/listLoaded', ListedPokemon[]>
 
 export type ListingEventSearch =
-  PayloadStoreEvent<'listing/search', string>;
+  PayloadStoreEvent<'listing/search', string>
 
 export type ListingEventSelect =
-  PayloadStoreEvent<'listing/select', number>;
+  PayloadStoreEvent<'listing/select', number>
 
 export type ListingEventDetailsLoaded =
-  PayloadStoreEvent<'listing/detailsLoaded', PokemonDetails>;
+  PayloadStoreEvent<'listing/detailsLoaded', Pokemon>
 
 export type ListingEvent =
   | ListingEventFetcAll
   | ListingEventListLoaded
   | ListingEventSearch
   | ListingEventSelect
-  | ListingEventDetailsLoaded;
+  | ListingEventDetailsLoaded
 
-const fetchAll = (state: ListingState, event: ListingEventFetcAll) => ({
+const fetchAll = (state: ListingState, event: ListingEventFetcAll): ListingState => ({
   ...state,
   listingStatus: 'loading-list' as const,
 })
 
-const listLoaded = (state: ListingState, event: ListingEventListLoaded) => ({
+const listLoaded = (state: ListingState, event: ListingEventListLoaded): ListingState => ({
   ...state,
   listingStatus: 'loaded' as const,
   pokemons: event.payload,
-});
+})
 
-const search = (state: ListingState, event: ListingEventSearch) => ({
+const search = (state: ListingState, event: ListingEventSearch): ListingState => ({
   ...state,
   listingStatus: 'loading-list' as const,
   searchTerm: event.payload,
-});
+})
 
-const select = (state: ListingState, event: ListingEventSelect) => ({
+const select = (state: ListingState, event: ListingEventSelect): ListingState => ({
   ...state,
   listingStatus: 'loading-details' as const,
   selectedPokemon: event.payload,
-});
+})
 
-const detailsLoaded = (state: ListingState, event: ListingEventDetailsLoaded) => ({
+const detailsLoaded = (state: ListingState, event: ListingEventDetailsLoaded): ListingState => ({
   ...state,
   listingStatus: 'loaded' as const,
   details: event.payload,
-});
+})
 
 const reducers = {
   fetchAll,
@@ -94,7 +79,7 @@ const reducers = {
   search,
   select,
   detailsLoaded,
-};
+}
 
 const initialState: ListingState = {
   listingStatus: 'initial' as ListingStatus,
@@ -102,7 +87,7 @@ const initialState: ListingState = {
   pokemons: [],
   selectedPokemon: 0,
   details: undefined,
-};
+}
 
 export const listingSlice: CoreStoreSlice<ListingState, typeof reducers> =
   createCoreStoreSlice({
@@ -118,5 +103,5 @@ export const {
     search: searchCreator,
     detailsLoaded: detailsLoadedCreator,
     select: selectCreator,
-  }
-} = listingSlice;
+  },
+} = listingSlice
