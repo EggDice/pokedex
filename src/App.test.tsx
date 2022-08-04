@@ -7,7 +7,7 @@ import { createListing } from '@/listing'
 import { appStore } from './app/app-store'
 import { pokemonServiceFake as pokemonService } from '@/pokemon/fake'
 
-test('renders the list of pokemons', () => {
+test('starts to lead the pokemons', () => {
   const store = appStore()
   const listing = createListing({ store, pokemonService })
   render(<App services={{ listing }} />)
