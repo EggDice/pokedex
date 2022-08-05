@@ -15,11 +15,13 @@ export const httpGetStub =
       () => {
         const response = stubbedEndpoints
           .find((endpoint) => endpoint.url === url)?.response as T
-        if (response instanceof Error) {
-          return timer(1).pipe(
-            mergeMap(() => throwError(response)),
-          ) as unknown as Promise<never>
-        }
-        return of(response).pipe(delay(1)) as unknown as Promise<T>
+        return getFakeValue(response)
       }
 /* eslint-disable @typescript-eslint/promise-function-async */
+
+const getFakeValue = <T>(value: T): Promise<T> | Promise<never> =>
+  value instanceof Error
+    ? timer(1).pipe(
+      mergeMap(() => throwError(value)),
+    ) as unknown as Promise<never>
+    : of(value).pipe(delay(1)) as unknown as Promise<T>
