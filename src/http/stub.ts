@@ -11,10 +11,11 @@ interface StubbedEndpoint<T = any> {
 // real promises because it cannot fake the time of real async.
 export const httpGetStub =
   (stubbedEndpoints: StubbedEndpoint[]) =>
-    <T> (url: string) =>
+    <T> (urlRequested: string) =>
       () => {
         const response = stubbedEndpoints
-          .find((endpoint) => endpoint.url === url)?.response as T
+          .find(({ url }) => url === urlRequested)
+          ?.response as T
         return getFakeValue(response)
       }
 /* eslint-disable @typescript-eslint/promise-function-async */

@@ -1,8 +1,9 @@
-import type { HttpGet } from '../http'
-import { appStore } from '../app/app-store'
+import type { HttpGet } from '@/http'
+import { appStore } from '@/app/app-store'
 import { createListing } from '@/listing'
 import type { ListingFeature } from '@/listing'
-import { createPokemonService } from '../pokemon/service'
+import { createPokemonService } from '@/pokemon/service'
+import { application } from '@core/application'
 
 interface ExternalServices {
   httpGet: HttpGet
@@ -20,9 +21,15 @@ export const createApp = ({
 }: {
   services: ExternalServices
   run: Run
-}): void => {
-  const pokemonService = createPokemonService(services.httpGet)
+}): void => application<ExternalServices, InternalServices>({
+  externalServices: services,
+  run,
+  configure,
+})
+
+const configure = ({ httpGet }: ExternalServices): InternalServices => {
+  const pokemonService = createPokemonService(httpGet)
   const store = appStore()
   const listing = createListing({ store, pokemonService })
-  run({ listing })
+  return { listing }
 }
