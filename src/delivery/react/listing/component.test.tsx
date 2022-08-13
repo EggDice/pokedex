@@ -1,19 +1,15 @@
 import React from 'react'
-import { render as tlRender, act, screen, fireEvent } from '@testing-library/react'
+import { act, screen, fireEvent } from '@testing-library/react'
+import { render } from '@/app/react/test-render'
 import { Listing } from './component'
-import { createListing } from '@/listing'
-import { pokemonServiceFake as pokemonService } from '@/pokemon/fake'
-import { appStore } from '@/app/app-store'
-import { InternalServicesContext } from '@/delivery/react/app'
-import type { InternalServices } from '@/app'
 
 test('renders the list of pokemons', async () => {
   const { listing } = render(<Listing />)
   act(() => {
     listing.loadPokemonList()
   })
-  const loader = screen.queryAllByText('Loading...')
-  expect(loader[0]).toBeInTheDocument()
+  const [loader] = screen.queryAllByText('Loading...')
+  expect(loader).toBeInTheDocument()
   const listedPokemon = await screen.findByAltText('bulbasaur')
   expect(listedPokemon).toBeInTheDocument()
 })
@@ -52,21 +48,8 @@ test('searches for pokemons', async () => {
   fireEvent.change(textBox, { target: { value: 'bulbasaur' } })
   const submit = screen.getByText('Search')
   fireEvent.click(submit)
-  const loader = screen.queryAllByText('Loading...')
-  expect(loader[0]).toBeInTheDocument()
+  const [loader] = screen.queryAllByText('Loading...')
+  expect(loader).toBeInTheDocument()
   const listedPokemon = await screen.findByAltText('bulbasaur')
   expect(listedPokemon).toBeInTheDocument()
 })
-
-const render = (ui: JSX.Element, options?: any): InternalServices => {
-  const store = appStore()
-  const listing = createListing({ store, pokemonService })
-  const internalServices = { listing }
-  const Provider: React.FC<{ children: JSX.Element }> = ({ children }) => (
-    <InternalServicesContext.Provider value={internalServices}>
-      { children }
-    </InternalServicesContext.Provider>
-  )
-  tlRender(ui, { wrapper: Provider, ...options })
-  return internalServices
-}

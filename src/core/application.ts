@@ -9,11 +9,10 @@ export interface Application<
   readonly run: (args?: RUN_ARGS) => RUN_RETURN
 }
 
-interface AppArgs<
+export interface AppArgs<
   EXTERNAL_SERVICES extends Record<string, any>,
   INTERNAL_SERVICES extends Record<string, any>,
   DELIVERY extends Record<string, any>,
- // OUTPUT = ,
 > {
   readonly preRender?: (services: INTERNAL_SERVICES) => void
   readonly getInternalServices?: (externalServices: EXTERNAL_SERVICES) => INTERNAL_SERVICES
