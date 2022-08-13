@@ -1,22 +1,24 @@
 import React, { useContext } from 'react'
-import { ListingContext } from './context'
+import { InternalServicesContext } from '@/delivery/react/app'
+import type { InternalServices } from '@/app'
 import { ImageGrid } from './grid'
 import { SearchBox } from './search-box'
 import { DetailsDialog } from './details-modal'
 import { useObservableState } from 'observable-hooks'
-import type { ListingFeature } from './feature'
 import './component.css'
 
 export const Listing: React.FC = () => {
   const {
-    pokemons$,
-    details$,
-    isListLoaded$,
-    isDetailsLoaded$,
-    isModalOpen$,
-    search,
-    select,
-  } = useContext(ListingContext) as ListingFeature
+    listing: {
+      pokemons$,
+      details$,
+      isListLoaded$,
+      isDetailsLoaded$,
+      isModalOpen$,
+      search,
+      select,
+    },
+  } = useContext(InternalServicesContext) as InternalServices
   const pokemons = useObservableState(pokemons$, [])
   const details = useObservableState(details$, undefined)
   const isListLoaded = useObservableState(isListLoaded$, false)
@@ -33,6 +35,6 @@ export const Listing: React.FC = () => {
     <section className="listing">
       <SearchBox onSearch={(term) => { search(term) }} />
       <ImageGrid onSelect={select} images={pokemons} isListLoaded={isListLoaded}/>
-    </section>;
+    </section>
   </>
 }

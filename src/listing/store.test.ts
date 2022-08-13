@@ -1,24 +1,24 @@
-import { listingSlice } from './store'
-import { coreMarbles } from '../core/marbles'
-import { createCoreStore } from '../core/store'
+import {
+  listingReducer,
+  fetchAllCreator,
+  listLoadedCreator,
+  searchCreator,
+  detailsLoadedCreator,
+  selectCreator,
+} from './store'
 
-test('Default state is loading', coreMarbles((m) => {
-  const store = createCoreStore({ listing: listingSlice.reducer })
-  m.expect(store.state$).toBeObservable('L', {
-    L: {
-      listing: {
-        listingStatus: 'initial' as const,
-        searchTerm: '',
-        pokemons: [],
-        selectedPokemon: 0,
-        details: undefined,
-      },
-    },
+test('Default state is loading', () => {
+  const initialState = listingReducer(undefined, { type: 'init' })
+  expect(initialState).toEqual({
+    listingStatus: 'initial' as const,
+    searchTerm: '',
+    pokemons: [],
+    selectedPokemon: 0,
+    details: undefined,
   })
-}))
+})
 
 test('Start loading pokemons', () => {
-  const { reducer, eventCreators: { fetchAll } } = listingSlice
   const initialState = {
     listingStatus: 'initial' as const,
     searchTerm: '',
@@ -26,7 +26,7 @@ test('Start loading pokemons', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = reducer(initialState, fetchAll())
+  const state = listingReducer(initialState, fetchAllCreator())
   expect(state).toEqual({
     listingStatus: 'loading-list',
     searchTerm: '',
@@ -37,7 +37,6 @@ test('Start loading pokemons', () => {
 })
 
 test('Finish loading pokemons', () => {
-  const { reducer, eventCreators: { listLoaded } } = listingSlice
   const initialState = {
     listingStatus: 'initial' as const,
     searchTerm: '',
@@ -45,7 +44,7 @@ test('Finish loading pokemons', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = reducer(initialState, listLoaded([
+  const state = listingReducer(initialState, listLoadedCreator([
     { name: 'bulbasour', image: 'src', id: 1 },
   ]))
   expect(state).toEqual({
@@ -58,7 +57,6 @@ test('Finish loading pokemons', () => {
 })
 
 test('Start searching', () => {
-  const { reducer, eventCreators: { search } } = listingSlice
   const initialState = {
     listingStatus: 'initial' as const,
     searchTerm: '',
@@ -66,10 +64,10 @@ test('Start searching', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = reducer(initialState, search('bulbasour'))
+  const state = listingReducer(initialState, searchCreator('bulbasaur'))
   expect(state).toEqual({
     listingStatus: 'loading-list',
-    searchTerm: 'bulbasour',
+    searchTerm: 'bulbasaur',
     pokemons: [],
     selectedPokemon: 0,
     details: undefined,
@@ -77,7 +75,6 @@ test('Start searching', () => {
 })
 
 test('Select pokemon', () => {
-  const { reducer, eventCreators: { select } } = listingSlice
   const initialState = {
     listingStatus: 'initial' as const,
     searchTerm: '',
@@ -85,7 +82,7 @@ test('Select pokemon', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = reducer(initialState, select(1))
+  const state = listingReducer(initialState, selectCreator(1))
   expect(state).toEqual({
     listingStatus: 'loading-details',
     searchTerm: '',
@@ -96,7 +93,6 @@ test('Select pokemon', () => {
 })
 
 test('Select pokemon loaded', () => {
-  const { reducer, eventCreators: { detailsLoaded } } = listingSlice
   const initialState = {
     listingStatus: 'loading-details' as const,
     searchTerm: '',
@@ -104,7 +100,7 @@ test('Select pokemon loaded', () => {
     selectedPokemon: 1,
     details: undefined,
   }
-  const state = reducer(initialState, detailsLoaded({
+  const state = listingReducer(initialState, detailsLoadedCreator({
     name: 'bulbasour', types: [], stats: [], image: '', id: 1,
   }))
   expect(state).toEqual({

@@ -1,21 +1,16 @@
 import React from 'react'
-import { render, act, screen, fireEvent } from '@testing-library/react'
+import { render as tlRender, act, screen, fireEvent } from '@testing-library/react'
 import { Listing } from './component'
-import { createListing } from './feature'
+import { createListing } from '@/listing'
 import { pokemonServiceFake as pokemonService } from '@/pokemon/fake'
 import { appStore } from '@/app/app-store'
-import { ListingContext } from './context'
+import { InternalServicesContext } from '@/delivery/react/app'
+import type { InternalServices } from '@/app'
 
 test('renders the list of pokemons', async () => {
-  const store = appStore()
-  const listingFeature = createListing({ store, pokemonService })
-  render(
-    <ListingContext.Provider value={listingFeature}>
-      <Listing />
-    </ListingContext.Provider>,
-  )
+  const { listing } = render(<Listing />)
   act(() => {
-    listingFeature.loadPokemonList()
+    listing.loadPokemonList()
   })
   const loader = screen.queryAllByText('Loading...')
   expect(loader[0]).toBeInTheDocument()
@@ -24,15 +19,9 @@ test('renders the list of pokemons', async () => {
 })
 
 test('selects a pokemon', async () => {
-  const store = appStore()
-  const listingFeature = createListing({ store, pokemonService })
-  render(
-    <ListingContext.Provider value={listingFeature}>
-      <Listing />
-    </ListingContext.Provider>,
-  )
+  const { listing } = render(<Listing />)
   act(() => {
-    listingFeature.loadPokemonList()
+    listing.loadPokemonList()
   })
   const dialog = screen.getByRole('dialog', { hidden: true })
   expect(dialog).not.toBeVisible()
@@ -43,15 +32,9 @@ test('selects a pokemon', async () => {
 })
 
 test('close modal', async () => {
-  const store = appStore()
-  const listingFeature = createListing({ store, pokemonService })
-  render(
-    <ListingContext.Provider value={listingFeature}>
-      <Listing />
-    </ListingContext.Provider>,
-  )
+  const { listing } = render(<Listing />)
   act(() => {
-    listingFeature.loadPokemonList()
+    listing.loadPokemonList()
   })
   const dialog = screen.getByRole('dialog', { hidden: true })
   expect(dialog).not.toBeVisible()
@@ -64,13 +47,7 @@ test('close modal', async () => {
 })
 
 test('searches for pokemons', async () => {
-  const store = appStore()
-  const listingFeature = createListing({ store, pokemonService })
-  render(
-    <ListingContext.Provider value={listingFeature}>
-      <Listing />
-    </ListingContext.Provider>,
-  )
+  render(<Listing />)
   const textBox = screen.getByLabelText('search')
   fireEvent.change(textBox, { target: { value: 'bulbasaur' } })
   const submit = screen.getByText('Search')
@@ -80,3 +57,16 @@ test('searches for pokemons', async () => {
   const listedPokemon = await screen.findByAltText('bulbasaur')
   expect(listedPokemon).toBeInTheDocument()
 })
+
+const render = (ui: JSX.Element, options?: any): InternalServices => {
+  const store = appStore()
+  const listing = createListing({ store, pokemonService })
+  const internalServices = { listing }
+  const Provider: React.FC<{ children: JSX.Element }> = ({ children }) => (
+    <InternalServicesContext.Provider value={internalServices}>
+      { children }
+    </InternalServicesContext.Provider>
+  )
+  tlRender(ui, { wrapper: Provider, ...options })
+  return internalServices
+}

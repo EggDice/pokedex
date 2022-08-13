@@ -89,7 +89,7 @@ const initialState: ListingState = {
   details: undefined,
 }
 
-export const listingSlice: CoreStoreSlice<ListingState, typeof reducers> =
+const listingSlice: CoreStoreSlice<ListingState, typeof reducers> =
   createCoreStoreSlice({
     name: 'listing',
     initialState,
@@ -104,4 +104,5 @@ export const {
     detailsLoaded: detailsLoadedCreator,
     select: selectCreator,
   },
+  reducer: listingReducer,
 } = listingSlice

@@ -7,14 +7,14 @@ import { map } from 'rxjs/operators'
 import type { Observable } from 'rxjs'
 
 import {
-  pokemonHttpStub,
   BULBASAUR,
   BULBASAUR_LISTED,
 } from './fake'
 import { coreMarbles } from '@core/marbles'
 import { httpGet } from '@/http'
+import { httpGetFake } from '@/http/fake'
 
-const pokemonService = createPokemonService(pokemonHttpStub)
+const pokemonService = createPokemonService(httpGetFake)
 
 test('smoke for injecting real dependencies', () => {
   createPokemonService(httpGet)
