@@ -7,6 +7,6 @@ import { internalServicesFake as internalServices } from '@/app/internal-service
 
 test('starts to lead the pokemons', () => {
   render(<App services={internalServices} />)
-  const loader = screen.queryAllByText('Loading...')
-  expect(loader[0]).toBeInTheDocument()
+  const [loader] = screen.queryAllByText('Loading...')
+  expect(loader).toBeInTheDocument()
 })

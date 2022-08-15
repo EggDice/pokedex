@@ -2,11 +2,23 @@ import { Observable, Subject } from 'rxjs'
 import { mergeAll } from 'rxjs/operators'
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import type { SliceCaseReducers } from '@reduxjs/toolkit'
+import type { CoreEffectFunction } from './effect'
 
-export interface CoreStore<ALL_STATE, ALL_EVENT> {
+export interface CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> extends
+  StateReadable<ALL_STATE>,
+  EventReceiver<ALL_EVENT>,
+  EffectRegistry<ALL_EVENT> {}
+
+export interface StateReadable<ALL_STATE> {
   state$: Observable<ALL_STATE>
+}
+
+export interface EventReceiver<ALL_EVENT extends CoreEvent> {
   send: (event: ALL_EVENT) => void
-  registerEffect: (effect: CoreEffect<ALL_EVENT>) => void
+}
+
+export interface EffectRegistry<ALL_EVENT extends CoreEvent> {
+  registerEffect: (effect: CoreEffectFunction<ALL_EVENT>) => void
 }
 
 export type CoreReducer<STATE, EVENT extends StoreEvent = StoreEvent> = (
@@ -14,7 +26,7 @@ export type CoreReducer<STATE, EVENT extends StoreEvent = StoreEvent> = (
   event: EVENT
 ) => STATE
 
-export type CoreReducersObject<ALL_STATE, ALL_EVENT extends StoreEvent> = {
+export type CoreReducersObject<ALL_STATE, ALL_EVENT extends CoreEvent> = {
   [KEY in keyof ALL_STATE]: CoreReducer<ALL_STATE[KEY], ALL_EVENT>;
 }
 
@@ -28,6 +40,8 @@ export interface PayloadStoreEvent<
 > extends StoreEvent<TYPE> {
   payload: PAYLOAD
 }
+
+export type CoreEvent = StoreEvent | PayloadStoreEvent
 
 export type CoreCaseReducer<
   STATE,
@@ -75,9 +89,6 @@ export interface CoreStoreSlice<
   eventCreators: StoreEventCreators<STATE, CASE_REDUCERS>
 };
 
-export type CoreEffect<EVENT> =
-  (event$: Observable<EVENT>) => Observable<EVENT>
-
 export const createCoreStore = <
   STATE,
   EVENT extends StoreEvent | PayloadStoreEvent,
@@ -120,6 +131,8 @@ export const createCoreStoreSlice = <
   return {
     name,
     reducer: reducer as CoreReducer<STATE, StoreEvent>,
+    // We don't want to reproduce the "immer" types that are used in redux-toolkit so we just
+    // force cast the event creators
     eventCreators: actions as
         unknown as StoreEventCreators<STATE, CASE_REDUCERS>,
   }

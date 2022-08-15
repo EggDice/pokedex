@@ -1,20 +1,18 @@
 import { filter } from 'rxjs/operators'
 
 import type { OperatorFunction, Observable } from 'rxjs'
-import type { StoreEvent, PayloadStoreEvent } from '@core/store'
+import type { CoreEvent } from '@core/store'
 
-export type CoreEffectFunction<T extends Event> =
- (event$: Observable<T>) => Observable<T>
+export type CoreEffectFunction<EVENT extends CoreEvent> =
+ (event$: Observable<EVENT>) => Observable<EVENT>
 
-export interface CoreEffect<T extends Event> {
-  [key: string]: CoreEffectFunction<T>
+export interface CoreEffect<EVENT extends CoreEvent> {
+  [key: string]: CoreEffectFunction<EVENT>
 }
 
-type Event = StoreEvent | PayloadStoreEvent
-
 export const filterByType = <
-  ALL_EVENTS extends Event,
+  ALL_EVENTS extends CoreEvent,
   TYPE_STRING = string,
-  EVENT extends Event = Extract<{ type: TYPE_STRING }, ALL_EVENTS>,
-> (selectedType: TYPE_STRING): OperatorFunction<Event, EVENT> =>
-    filter(({ type }) => type === selectedType) as OperatorFunction<Event, EVENT>
+  EVENT extends CoreEvent = Extract<{ type: TYPE_STRING }, ALL_EVENTS>,
+> (selectedType: TYPE_STRING): OperatorFunction<CoreEvent, EVENT> =>
+    filter(({ type }) => type === selectedType) as OperatorFunction<CoreEvent, EVENT>

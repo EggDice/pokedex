@@ -6,7 +6,7 @@ export interface Application<
   RUN_ARGS = Partial<AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>>,
   RUN_RETURN = { services: INTERNAL_SERVICES, delivery: DELIVERY, output: OUTPUT },
 > {
-  readonly run: (args?: RUN_ARGS) => RUN_RETURN
+  readonly run: (args?: RUN_ARGS) => RUN_RETURN | undefined
 }
 
 export interface AppArgs<
@@ -14,12 +14,14 @@ export interface AppArgs<
   INTERNAL_SERVICES extends Record<string, any>,
   DELIVERY extends Record<string, any>,
 > {
-  readonly preRender?: (services: INTERNAL_SERVICES) => void
   readonly getInternalServices?: (externalServices: EXTERNAL_SERVICES) => INTERNAL_SERVICES
   readonly getExternalServices?: () => EXTERNAL_SERVICES
+  readonly preRender?: (services: INTERNAL_SERVICES) => void
   readonly getDelivery?: (services: INTERNAL_SERVICES) => DELIVERY
   readonly render?: (arg: { services: INTERNAL_SERVICES, delivery: DELIVERY }) => any
-};
+  readonly onError?: (err: Error) => void
+  readonly topLevelErrorHandling?: (cb: (err: Error) => void) => void
+}
 
 export const createApplication = <
   EXTERNAL_SERVICES extends Record<string, any> = {},
@@ -29,12 +31,15 @@ export const createApplication = <
 >(appArgs: AppArgs<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY>):
   Application<EXTERNAL_SERVICES, INTERNAL_SERVICES, DELIVERY, OUTPUT> => ({
     run: (runArgs = {}) => {
+      // Need to cast the default valuse because these are independent from the template variables
       const defaults = {
-        preRender: () => {},
         getInternalServices: (services: EXTERNAL_SERVICES) => services as INTERNAL_SERVICES,
         getExternalServices: () => ({} as unknown as EXTERNAL_SERVICES),
+        preRender: () => {},
         getDelivery: () => ({} as unknown as DELIVERY),
         render: () => 0,
+        onError: () => {},
+        topLevelErrorHandling: (cb: (err: Error) => void) => {},
       }
       const {
         getExternalServices,
@@ -42,11 +47,18 @@ export const createApplication = <
         preRender,
         getDelivery,
         render,
+        onError,
+        topLevelErrorHandling,
       } = { ...defaults, ...appArgs, ...runArgs }
-      const services = getInternalServices(getExternalServices())
-      preRender(services)
-      const delivery = getDelivery(services)
-      const output = render({ services, delivery })
-      return { services, delivery, output }
+      try {
+        topLevelErrorHandling(onError)
+        const services = getInternalServices(getExternalServices())
+        preRender(services)
+        const delivery = getDelivery(services)
+        const output = render({ services, delivery })
+        return { services, delivery, output }
+      } catch (err) {
+        onError(err as Error)
+      }
     },
   })

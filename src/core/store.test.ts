@@ -31,8 +31,6 @@ interface AllTestState {
   append: AppendState
 };
 
-beforeEach(() => jest.useFakeTimers())
-
 test('store has inital state', coreMarbles(m => {
   const initialState: CountState = 0
   const coreStore = createCoreStore<AllCountState, AllTestEvents>({

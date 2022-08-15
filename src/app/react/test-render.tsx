@@ -12,6 +12,8 @@ import type { ExternalServices, InternalServices } from '@/app/type'
 type RenderOptions = Omit<AppArgs<ExternalServices, InternalServices, ReactDelivery>, 'render'>
 
 export const render = (ui: JSX.Element, options?: RenderOptions): InternalServices =>
+  // It would be only undefined if there is an error, the type check would not have any upside in
+  // the test so casting to avoid null checking in tests
   createApplication<ExternalServices, InternalServices, ReactDelivery, undefined>({
     getExternalServices,
     getInternalServices,
@@ -20,4 +22,4 @@ export const render = (ui: JSX.Element, options?: RenderOptions): InternalServic
     render: ({ delivery: { Root } }) => {
       testingLibraryRender(<Root>{ui}</Root>)
     },
-  }).run(options).services
+  }).run(options)?.services as InternalServices

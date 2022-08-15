@@ -17,6 +17,5 @@ test('Provides the services', () => {
       <TestConsumer />
     </Frame>,
   )
-  // console.log(services)
-  expect(Object.keys(services as unknown as Object).length > 0).toBe(true)
+  expect(Object.keys(services ?? {}).length > 0).toBe(true)
 })

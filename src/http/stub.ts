@@ -20,6 +20,8 @@ export const httpGetStub =
       }
 /* eslint-disable @typescript-eslint/promise-function-async */
 
+// We are using observable values instead of promises to make sure marbles are working,
+// so we need to force cast the values to promises
 const getFakeValue = <T>(value: T): Promise<T> | Promise<never> =>
   value instanceof Error
     ? timer(1).pipe(
