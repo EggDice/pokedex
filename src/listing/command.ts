@@ -1,5 +1,6 @@
 import { fetchAllCreator, searchCreator, selectCreator } from './store'
-import type { AppEventReceiver } from '../app/app-store'
+import type { ListingEvent } from './store'
+import type { EventReceiver } from '@core/store'
 
 export interface ListingCommand {
   loadPokemonList: () => void
@@ -7,8 +8,8 @@ export interface ListingCommand {
   select: (id: number) => void
 }
 
-export const listingCommand = (appStore: AppEventReceiver): ListingCommand => {
-  return {
+export const listingCommand = <APP_STORE_EVENT extends ListingEvent>
+  (appStore: EventReceiver<APP_STORE_EVENT | ListingEvent>): ListingCommand => ({
     loadPokemonList: () => {
       appStore.send(fetchAllCreator())
     },
@@ -18,5 +19,4 @@ export const listingCommand = (appStore: AppEventReceiver): ListingCommand => {
     select: (id: number) => {
       appStore.send(selectCreator(id))
     },
-  }
-}
+  })

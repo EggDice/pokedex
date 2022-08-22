@@ -1,5 +1,5 @@
 import { map, distinctUntilChanged } from 'rxjs/operators'
-import type { AppStateReadable } from '../app/app-store'
+import type { StateReadable } from '@core/store'
 import type { ListingState, ListingStatus } from './store'
 import type { Observable } from 'rxjs'
 import type { Pokemon, ListedPokemon } from '@/pokemon'
@@ -13,7 +13,7 @@ export interface ListingQuery {
   details$: Observable<Pokemon | undefined>
 }
 
-export const listingQuery = (store: AppStateReadable): ListingQuery => ({
+export const listingQuery = (store: StateReadable<{ listing: ListingState }>): ListingQuery => ({
   isListLoaded$:
       store.state$.pipe(map(getListingStatus),
         distinctUntilChanged(),

@@ -1,11 +1,15 @@
 import { appStore } from '@/app/app-store'
 import { createListing } from '@/listing'
 import { createPokemonService } from '@/pokemon/service'
-import { ExternalServices, InternalServices } from '@/app/type'
+import { createNavigation, createNavigationService } from '@/navigation'
+import type { ExternalServices, InternalServices } from '@/app/type'
+import type { AppStoreEvent } from '@/app'
 
-export const getInternalServices = ({ httpGet }: ExternalServices): InternalServices => {
-  const pokemonService = createPokemonService(httpGet)
+export const getInternalServices = ({ httpGet, history }: ExternalServices): InternalServices => {
   const store = appStore()
-  const listing = createListing({ store, pokemonService })
-  return { listing }
+  const navigationService = createNavigationService(history)
+  const navigation = createNavigation<AppStoreEvent>({ store, navigationService })
+  const pokemonService = createPokemonService(httpGet)
+  const listing = createListing<AppStoreEvent>({ store, pokemonService })
+  return { listing, navigation }
 }

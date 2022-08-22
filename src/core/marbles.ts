@@ -47,16 +47,25 @@ export const coreMarbles = (runner: Runner): (() => void) => marbles((m) => {
     return new ExtendedExpect(actual as any, helpers_, subscription)
   }
 
-  return runner(
-    // The methods on `m` (the RunContext) are on the prototype, so we have to use mutation
-    Object.assign(
-      m,
-      {
-        coldCall,
-        coldBoolean,
-        expect,
-      },
-    ))
+  // The methods on `m` (the RunContext) are on the prototype, so we have to bind the original
+  // ones to be able to use destructuring
+  return runner({
+    get autoFlush () { return m.autoFlush },
+    coldCall,
+    coldBoolean,
+    expect,
+    equal: m.equal.bind(m),
+    cold: m.cold.bind(m),
+    bind: m.bind.bind(m),
+    configure: m.configure.bind(m),
+    flush: m.flush.bind(m),
+    has: m.has.bind(m),
+    hot: m.hot.bind(m),
+    reframe: m.reframe.bind(m),
+    scheduler: m.scheduler,
+    teardown: m.teardown.bind(m),
+    time: m.time.bind(m),
+  })
 })
 
 export const MARBLES_BOOLEAN = {

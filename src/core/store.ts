@@ -21,7 +21,7 @@ export interface EffectRegistry<ALL_EVENT extends CoreEvent> {
   registerEffect: (effect: CoreEffectFunction<ALL_EVENT>) => void
 }
 
-export type CoreReducer<STATE, EVENT extends StoreEvent = StoreEvent> = (
+export type CoreReducer<STATE, EVENT extends CoreEvent = CoreEvent> = (
   state: STATE | undefined,
   event: EVENT
 ) => STATE
@@ -77,7 +77,7 @@ export type StoreEventCreators<
   [KEY in keyof CASE_REDUCERS]:
   CASE_REDUCERS[KEY] extends (state: any, event: infer EVENT) => any ?
     StoreEventCreator<EVENT> :
-    StoreEventCreator<StoreEvent>
+    StoreEventCreator<CoreEvent>
 }
 
 export interface CoreStoreSlice<
@@ -96,7 +96,11 @@ export const createCoreStore = <
   const store = configureStore({ reducer })
   const event$ = new Subject<EVENT>()
   const event$$ = new Subject<Observable<EVENT>>()
-  event$$.pipe(mergeAll()).subscribe((event) => store.dispatch(event))
+  const eventAfterEffects$ = new Subject<EVENT>()
+  event$$.pipe(mergeAll()).subscribe((event) => {
+    store.dispatch(event)
+    eventAfterEffects$.next(event)
+  })
   event$$.next(event$)
   return {
     state$: new Observable(subscriber => {
@@ -109,7 +113,7 @@ export const createCoreStore = <
       event$.next(action)
     },
     registerEffect: (effect) => {
-      event$$.next(effect(event$))
+      event$$.next(effect(eventAfterEffects$))
     },
   }
 }
@@ -130,7 +134,7 @@ export const createCoreStoreSlice = <
   })
   return {
     name,
-    reducer: reducer as CoreReducer<STATE, StoreEvent>,
+    reducer: reducer as CoreReducer<STATE, CoreEvent>,
     // We don't want to reproduce the "immer" types that are used in redux-toolkit so we just
     // force cast the event creators
     eventCreators: actions as

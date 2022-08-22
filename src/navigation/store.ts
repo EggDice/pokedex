@@ -1,6 +1,7 @@
 import { createCoreStoreSlice } from '@core/store'
 import type {
   PayloadStoreEvent,
+  CoreEvent,
 } from '@core/store'
 import type { Location } from './type'
 
@@ -9,8 +10,13 @@ export type NavigationState = Location
 export type NavigationEventChangeLocation =
   PayloadStoreEvent<'navigation/changeLocation', Location>
 
+export type NavigationEventAppNavigation =
+  PayloadStoreEvent<'navigation/appNavigation', Location>
+
 export type NavigationEvent =
+  | CoreEvent
   | NavigationEventChangeLocation
+  | NavigationEventAppNavigation
 
 const changeLocation =
   (state: NavigationState, event: NavigationEventChangeLocation): NavigationState => ({

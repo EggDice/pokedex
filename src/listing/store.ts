@@ -2,12 +2,16 @@ import { createCoreStoreSlice } from '@core/store'
 import type {
   PayloadStoreEvent,
   StoreEvent,
+  CoreEvent,
   CoreStoreSlice,
 } from '@core/store'
 import type {
   Pokemon,
   ListedPokemon,
 } from '@/pokemon'
+import type {
+  NavigationEventAppNavigation,
+} from '@/navigation'
 
 export type ListingStatus =
   | 'initial'
@@ -38,11 +42,13 @@ export type ListingEventDetailsLoaded =
   PayloadStoreEvent<'listing/detailsLoaded', Pokemon>
 
 export type ListingEvent =
+  | CoreEvent
   | ListingEventFetcAll
   | ListingEventListLoaded
   | ListingEventSearch
   | ListingEventSelect
   | ListingEventDetailsLoaded
+  | NavigationEventAppNavigation
 
 const fetchAll = (state: ListingState, event: ListingEventFetcAll): ListingState => ({
   ...state,

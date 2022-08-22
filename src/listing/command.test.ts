@@ -1,14 +1,12 @@
 import { listingCommand } from './command'
-import { map } from 'rxjs/operators'
-import { coreMarbles } from '../core/marbles'
-import { appStore } from '../app/app-store'
+import { coreMarbles } from '@core/marbles'
+import { createAppStore } from './fake'
 
-test('load pokemon list', coreMarbles((m) => {
-  const store = appStore()
+test('load pokemon list', coreMarbles(({ expect }) => {
+  const { store, sliceState$ } = createAppStore()
   const command = listingCommand(store)
   command.loadPokemonList()
-  const listingState$ = store.state$.pipe(map(({ listing }) => listing))
-  m.expect(listingState$).toBeObservable('l', {
+  expect(sliceState$).toBeObservable('l', {
     l: {
       listingStatus: 'loading-list',
       searchTerm: '',
@@ -19,12 +17,11 @@ test('load pokemon list', coreMarbles((m) => {
   })
 }))
 
-test('set search term', coreMarbles((m) => {
-  const store = appStore()
+test('set search term', coreMarbles(({ expect }) => {
+  const { store, sliceState$ } = createAppStore()
   const command = listingCommand(store)
   command.search('bulbasaur')
-  const listingState$ = store.state$.pipe(map(({ listing }) => listing))
-  m.expect(listingState$).toBeObservable('l', {
+  expect(sliceState$).toBeObservable('l', {
     l: {
       listingStatus: 'loading-list',
       searchTerm: 'bulbasaur',
@@ -35,12 +32,11 @@ test('set search term', coreMarbles((m) => {
   })
 }))
 
-test('select pokemon', coreMarbles((m) => {
-  const store = appStore()
+test('select pokemon', coreMarbles(({ expect }) => {
+  const { store, sliceState$ } = createAppStore()
   const command = listingCommand(store)
   command.select(1)
-  const listingState$ = store.state$.pipe(map(({ listing }) => listing))
-  m.expect(listingState$).toBeObservable('l', {
+  expect(sliceState$).toBeObservable('l', {
     l: {
       listingStatus: 'loading-details',
       searchTerm: '',

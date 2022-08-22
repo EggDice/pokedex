@@ -1,27 +1,27 @@
 import { coreMarbles } from '@core/marbles'
 import { Subject } from 'rxjs'
 
-test('it should run a single function', coreMarbles((m) => {
+test('it should run a single function', coreMarbles(({ expect, coldCall }) => {
   const s = new Subject()
-  m.coldCall('-cc', {
+  coldCall('-cc', {
     c: () => s.next('c'),
   })
-  m.expect(s).toBeObservable('-cc', { c: 'c' })
+  expect(s).toBeObservable('-cc', { c: 'c' })
 }))
 
-test('it should run multiple functions', coreMarbles((m) => {
+test('it should run multiple functions', coreMarbles(({ expect, coldCall }) => {
   const s = new Subject()
-  m.coldCall('-cd', {
+  coldCall('-cd', {
     c: () => s.next('c'),
     d: () => s.next('d'),
   })
-  m.expect(s).toBeObservable('-cd', { c: 'c', d: 'd' })
+  expect(s).toBeObservable('-cd', { c: 'c', d: 'd' })
 }))
 
-test('it should create a boolean marble', coreMarbles((m) => {
-  m.expect(m.coldBoolean('tf')).toBeObservable('tf', { t: true, f: false })
+test('it should create a boolean marble', coreMarbles(({ expect, coldBoolean }) => {
+  expect(coldBoolean('tf')).toBeObservable('tf', { t: true, f: false })
 }))
 
-test('it should assert a boolean marble', coreMarbles((m) => {
-  m.expect(m.cold('tf', { t: true, f: false })).toBeObservableBoolean('tf')
+test('it should assert a boolean marble', coreMarbles(({ expect, cold }) => {
+  expect(cold('tf', { t: true, f: false })).toBeObservableBoolean('tf')
 }))

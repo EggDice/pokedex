@@ -1,50 +1,50 @@
 import { map } from 'rxjs/operators'
-import { coreMarbles } from '../core/marbles'
-import { appStore } from '../app/app-store'
+import { coreMarbles } from '@core/marbles'
 import { createListing } from './feature'
 import { pokemonServiceFake as pokemonService, BULBASAUR } from '@/pokemon/fake'
+import { createAppStore } from './fake'
 
-test('load pokemon list', coreMarbles((m) => {
-  const store = appStore()
+test('load pokemon list', coreMarbles(({ expect }) => {
+  const { store } = createAppStore()
   const {
     loadPokemonList,
     isListLoaded$,
     pokemons$,
   } = createListing({ store, pokemonService })
   loadPokemonList()
-  m.expect(isListLoaded$).toBeObservable(m.coldBoolean('ft'))
+  expect(isListLoaded$).toBeObservableBoolean('ft')
   const pokemonsLength$ = pokemons$.pipe(
     map(({ length }) => length),
   )
-  m.expect(pokemonsLength$).toBeObservable(m.cold('01', { 0: 0, 1: 151 }))
+  expect(pokemonsLength$).toBeObservable('01', { 0: 0, 1: 151 })
 }))
 
-test('search pokemon', coreMarbles((m) => {
-  const store = appStore()
+test('search pokemon', coreMarbles(({ expect }) => {
+  const { store } = createAppStore()
   const {
     search,
     isListLoaded$,
     pokemons$,
   } = createListing({ store, pokemonService })
   search('bulbasaur')
-  m.expect(isListLoaded$).toBeObservable(m.coldBoolean('ft'))
+  expect(isListLoaded$).toBeObservableBoolean('ft')
   const pokemonsLength$ = pokemons$.pipe(
     map(({ length }) => length),
   )
-  m.expect(pokemonsLength$).toBeObservable(m.cold('01', { 0: 0, 1: 1 }))
+  expect(pokemonsLength$).toBeObservable('01', { 0: 0, 1: 1 })
 }))
 
-test('select pokemon', coreMarbles((m) => {
-  const store = appStore()
+test('select pokemon', coreMarbles(({ expect }) => {
+  const { store } = createAppStore()
   const {
     select,
     isDetailsLoaded$,
     details$,
   } = createListing({ store, pokemonService })
   select(1)
-  m.expect(isDetailsLoaded$).toBeObservable(m.coldBoolean('ft'))
-  m.expect(details$).toBeObservable(m.cold('01', {
+  expect(isDetailsLoaded$).toBeObservableBoolean('ft')
+  expect(details$).toBeObservable('01', {
     0: undefined,
     1: BULBASAUR,
-  }))
+  })
 }))

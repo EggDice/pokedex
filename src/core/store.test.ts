@@ -1,5 +1,6 @@
 import { mapTo } from 'rxjs/operators'
 import { coreMarbles } from '@core/marbles'
+import { filterByType } from '@core/effect'
 import { createCoreStore, createCoreStoreSlice } from '@core/store'
 import type { CoreReducer } from '@core/store'
 
@@ -16,11 +17,24 @@ interface TestIncrementAmount {
   payload: number
 };
 
+interface TestIncrementTwo {
+  type: 'count/incrementTwo'
+}
+
+interface TestStart {
+  type: 'count/start'
+}
+
 interface TestAppendA {
   type: 'append/appendA'
 }
 
-type AllTestEvents = TestIncrement | TestIncrementAmount | TestAppendA
+type AllTestEvents =
+  | TestIncrement
+  | TestIncrementAmount
+  | TestAppendA
+  | TestIncrementTwo
+  | TestStart
 
 interface AllCountState {
   count: CountState
@@ -31,17 +45,17 @@ interface AllTestState {
   append: AppendState
 };
 
-test('store has inital state', coreMarbles(m => {
+test('store has inital state', coreMarbles(({ expect }) => {
   const initialState: CountState = 0
   const coreStore = createCoreStore<AllCountState, AllTestEvents>({
     count: (state = initialState, event: AllTestEvents) => {
       return event.type === 'count/increment' ? state + 1 : state
     },
   })
-  m.expect(coreStore.state$).toBeObservable('0', { 0: { count: 0 } })
+  expect(coreStore.state$).toBeObservable('0', { 0: { count: 0 } })
 }))
 
-test('store has incremented state', coreMarbles(m => {
+test('store has incremented state', coreMarbles(({ expect }) => {
   const initialState: CountState = 0
   const coreStore = createCoreStore<AllCountState, AllTestEvents>({
     count: (state = initialState, event: AllTestEvents) => {
@@ -50,7 +64,7 @@ test('store has incremented state', coreMarbles(m => {
   })
   coreStore.send({ type: 'count/increment' })
   coreStore.send({ type: 'count/incrementAmount', payload: 5 })
-  m.expect(coreStore.state$).toBeObservable('1', { 1: { count: 1 } })
+  expect(coreStore.state$).toBeObservable('1', { 1: { count: 1 } })
 }))
 
 test('create store slice', () => {
@@ -73,7 +87,7 @@ test('create store slice', () => {
   expect(reducer(initialState, event2)).toEqual(5)
 })
 
-test('create combined store', coreMarbles(m => {
+test('create combined store', coreMarbles(({ expect }) => {
   const countSlice = createCoreStoreSlice({
     name: 'count',
     initialState: 0,
@@ -97,7 +111,7 @@ test('create combined store', coreMarbles(m => {
 
   coreStore.send(countSlice.eventCreators.increment())
   coreStore.send(appendSlice.eventCreators.appendA())
-  m.expect(coreStore.state$).toBeObservable('1', {
+  expect(coreStore.state$).toBeObservable('1', {
     1: {
       count: 1,
       append: 'A',
@@ -105,7 +119,7 @@ test('create combined store', coreMarbles(m => {
   })
 }))
 
-test('extending store with effects', coreMarbles(m => {
+test('extending store with effects', coreMarbles(({ expect }) => {
   const initialState: CountState = 0
   const coreStore = createCoreStore<AllCountState, AllTestEvents>({
     count: (state = initialState, event: AllTestEvents) => {
@@ -120,8 +134,35 @@ test('extending store with effects', coreMarbles(m => {
     },
   })
   coreStore.registerEffect(event$ => event$.pipe(
+    filterByType('count/increment'),
     mapTo({ type: 'count/incrementAmount', payload: 2 }),
   ))
   coreStore.send({ type: 'count/increment' })
-  m.expect(coreStore.state$).toBeObservable('3', { 3: { count: 3 } })
+  expect(coreStore.state$).toBeObservable('3', { 3: { count: 3 } })
+}))
+
+test('effect triggering another', coreMarbles(({ expect }) => {
+  const initialState: CountState = 0
+  const coreStore = createCoreStore<AllCountState, AllTestEvents>({
+    count: (state = initialState, event: AllTestEvents) => {
+      switch (event.type) {
+        case 'count/incrementAmount':
+          return state + event.payload
+        case 'count/increment':
+          return state + 1
+        default:
+          return state
+      }
+    },
+  })
+  coreStore.registerEffect(event$ => event$.pipe(
+    filterByType('count/start'),
+    mapTo({ type: 'count/incrementTwo' }),
+  ))
+  coreStore.registerEffect(event$ => event$.pipe(
+    filterByType('count/incrementTwo'),
+    mapTo({ type: 'count/incrementAmount', payload: 2 }),
+  ))
+  coreStore.send({ type: 'count/start' })
+  expect(coreStore.state$).toBeObservable('2', { 2: { count: 2 } })
 }))
