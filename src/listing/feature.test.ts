@@ -1,6 +1,8 @@
 import { map } from 'rxjs/operators'
 import { coreMarbles } from '@core/marbles'
 import { createListing } from './feature'
+import { createNavigation } from '@/navigation'
+import { createNavigationServiceFake as createNavigationService } from '@/navigation/fake'
 import { pokemonServiceFake as pokemonService, BULBASAUR } from '@/pokemon/fake'
 import { createAppStore } from './fake'
 
@@ -43,6 +45,26 @@ test('select pokemon', coreMarbles(({ expect }) => {
   } = createListing({ store, pokemonService })
   select(1)
   expect(isDetailsLoaded$).toBeObservableBoolean('ft')
+  expect(details$).toBeObservable('01', {
+    0: undefined,
+    1: BULBASAUR,
+  })
+}))
+
+test('select pokemon', coreMarbles(({ expect, coldCall }) => {
+  const { store } = createAppStore()
+  const navigationService = createNavigationService()
+  createNavigation({ store, navigationService })
+  const {
+    details$,
+  } = createListing({ store, pokemonService })
+  coldCall('1', {
+    1: () => navigationService.push({
+      pathname: '/pokemon/1',
+      hash: '',
+      search: '',
+    }),
+  })
   expect(details$).toBeObservable('01', {
     0: undefined,
     1: BULBASAUR,

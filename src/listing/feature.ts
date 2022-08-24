@@ -23,11 +23,13 @@ export const createListing = <APP_STORE_EVENT extends CoreEvent>
     handleFetchAll,
     handleSearch,
     handleSelect,
+    handleSelectRoute,
   } = listingEffect<APP_STORE_EVENT>(pokemonService)
 
   store.registerEffect(handleFetchAll)
   store.registerEffect(handleSearch)
   store.registerEffect(handleSelect)
+  store.registerEffect(handleSelectRoute)
 
   return {
     ...command,

@@ -1,16 +1,15 @@
 import { createNavigationService } from './service'
 import { createMemoryHistory } from 'history'
 import { navigationReducer } from './store'
-import type { NavigationState, NavigationEvent } from './store'
 import { createStoreTools } from '@core/fake'
+import type { NavigationService } from './service'
 
-export const navigationServiceFake = createNavigationService(createMemoryHistory())
+export const createNavigationServiceFake = (): NavigationService =>
+  createNavigationService(createMemoryHistory())
 
 export const {
   createAppStore,
   getStateReadable,
-} = createStoreTools<
-NavigationState,
-NavigationEvent,
-'navigation'
->('navigation', navigationReducer)
+} = createStoreTools('navigation', navigationReducer)
+
+export const baseStore = { navigation: navigationReducer }

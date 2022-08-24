@@ -64,5 +64,30 @@ test('pick pokemon', coreMarbles(({ expect, cold }) => {
   })
 }))
 
+test('don\'t load pokemon 0', coreMarbles(({ expect, cold }) => {
+  const SELECT_EMPTY: ListingEvent = { type: 'listing/select', payload: 0 }
+  const effect = listingEffect(pokemonService)
+  const event$ = cold('s', { s: SELECT_EMPTY })
+  expect(effect.handleSelect(event$)).toBeObservable('', {})
+}))
+
+test('handle select route', coreMarbles(({ expect, cold }) => {
+  const LOCATION = {
+    pathname: '/pokemon/1',
+    search: '',
+    hash: '',
+  }
+  const SELECT_NAVIGATION: ListingEvent = {
+    type: 'navigation/platformNavigation',
+    payload: LOCATION,
+  }
+  const SELECT_BULBASAUR: ListingEvent = { type: 'listing/select', payload: 1 }
+  const effect = listingEffect(pokemonService)
+  const event$ = cold('s', { s: SELECT_NAVIGATION })
+  expect(effect.handleSelectRoute(event$)).toBeObservable('s', {
+    s: SELECT_BULBASAUR,
+  })
+}))
+
 const payloadListToItsLength = (event: ListingEvent): { type: string, payload: number } =>
   ({ ...event, payload: (event as ListingEventListLoaded).payload.length })

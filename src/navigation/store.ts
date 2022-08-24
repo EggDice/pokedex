@@ -13,10 +13,14 @@ export type NavigationEventChangeLocation =
 export type NavigationEventAppNavigation =
   PayloadStoreEvent<'navigation/appNavigation', Location>
 
+export type NavigationEventPlatformNavigation =
+  PayloadStoreEvent<'navigation/platformNavigation', Location>
+
 export type NavigationEvent =
   | CoreEvent
   | NavigationEventChangeLocation
   | NavigationEventAppNavigation
+  | NavigationEventPlatformNavigation
 
 const changeLocation =
   (state: NavigationState, event: NavigationEventChangeLocation): NavigationState => ({

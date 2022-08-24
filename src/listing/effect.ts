@@ -1,10 +1,11 @@
 import type { PokemonService } from '@/pokemon'
 import { of } from 'rxjs'
-import { switchMap, map } from 'rxjs/operators'
+import { switchMap, map, filter } from 'rxjs/operators'
 import { filterByType } from '@core/effect'
 import type { CoreEffectFunction } from '@core/effect'
 import { listLoadedCreator, detailsLoadedCreator } from './store'
 import type { ListingEvent } from './store'
+import type { NavigationEventPlatformNavigation } from '@/navigation'
 
 interface ListingEffect<
   APP_STORE_EVENT extends ListingEvent,
@@ -12,6 +13,7 @@ interface ListingEffect<
   handleFetchAll: CoreEffectFunction<APP_STORE_EVENT>
   handleSearch: CoreEffectFunction<APP_STORE_EVENT>
   handleSelect: CoreEffectFunction<APP_STORE_EVENT>
+  handleSelectRoute: CoreEffectFunction<APP_STORE_EVENT>
 }
 
 export const listingEffect =
@@ -49,6 +51,7 @@ export const listingEffect =
       event$.pipe(
         filterByType('listing/select'),
         map(({ payload }) => payload),
+        filter((payload) => payload !== 0),
         switchMap(pokemonService.getPokemonById),
         map(p => p ?? { name: '', types: [], stats: [], id: 0, image: '' }),
         switchMap((pokemon) => of(
@@ -64,9 +67,19 @@ export const listingEffect =
         )),
       )
 
+    const handleSelectRoute: CoreEffectFunction<ListingEvent> = (event$) =>
+      event$.pipe(
+        filterByType('navigation/platformNavigation'),
+        map((event: NavigationEventPlatformNavigation) => ({
+          type: 'listing/select',
+          payload: Number(event.payload.pathname.split('/').at(-1)),
+        })),
+      )
+
     return {
       handleFetchAll,
       handleSearch,
       handleSelect,
+      handleSelectRoute,
     }
   }

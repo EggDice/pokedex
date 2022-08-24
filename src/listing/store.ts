@@ -11,6 +11,7 @@ import type {
 } from '@/pokemon'
 import type {
   NavigationEventAppNavigation,
+  NavigationEventPlatformNavigation,
 } from '@/navigation'
 
 export type ListingStatus =
@@ -49,6 +50,7 @@ export type ListingEvent =
   | ListingEventSelect
   | ListingEventDetailsLoaded
   | NavigationEventAppNavigation
+  | NavigationEventPlatformNavigation
 
 const fetchAll = (state: ListingState, event: ListingEventFetcAll): ListingState => ({
   ...state,

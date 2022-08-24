@@ -1,4 +1,5 @@
-import { fromEventPattern } from 'rxjs'
+import { fromEventPattern, merge, of } from 'rxjs'
+import { delay } from 'rxjs/operators'
 import type { Location } from './type'
 import type { History, Location as HistoryLocation } from 'history'
 import type { Observable } from 'rxjs'
@@ -15,12 +16,18 @@ export const createNavigationService = (history: History): NavigationService => 
       return toLocation(history.location)
     },
     push (location: Location) {
+      if (history.location.pathname === location.pathname) {
+        return
+      }
       history.push(toHistoryLocation(location))
     },
-    location$: fromEventPattern(
-      (handler) => history.listen(handler),
-      (_, cancel) => cancel(),
-      ({ location }) => toLocation(location),
+    location$: merge(
+      fromEventPattern(
+        (handler) => history.listen(handler),
+        (_, cancel) => cancel(),
+        ({ location }) => toLocation(location),
+      ),
+      of(toLocation(history.location)).pipe(delay(0)),
     ),
   }
 }
