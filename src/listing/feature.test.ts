@@ -5,6 +5,7 @@ import { createNavigation } from '@/navigation'
 import { createNavigationServiceFake as createNavigationService } from '@/navigation/fake'
 import { pokemonServiceFake as pokemonService, BULBASAUR } from '@/pokemon/fake'
 import { createAppStore } from './fake'
+import { router } from '@/delivery/react/app'
 
 test('load pokemon list', coreMarbles(({ expect }) => {
   const { store } = createAppStore()
@@ -12,7 +13,7 @@ test('load pokemon list', coreMarbles(({ expect }) => {
     loadPokemonList,
     isListLoaded$,
     pokemons$,
-  } = createListing({ store, pokemonService })
+  } = createListing({ store, pokemonService, router })
   loadPokemonList()
   expect(isListLoaded$).toBeObservableBoolean('ft')
   const pokemonsLength$ = pokemons$.pipe(
@@ -27,7 +28,7 @@ test('search pokemon', coreMarbles(({ expect }) => {
     search,
     isListLoaded$,
     pokemons$,
-  } = createListing({ store, pokemonService })
+  } = createListing({ store, pokemonService, router })
   search('bulbasaur')
   expect(isListLoaded$).toBeObservableBoolean('ft')
   const pokemonsLength$ = pokemons$.pipe(
@@ -42,7 +43,7 @@ test('select pokemon', coreMarbles(({ expect }) => {
     select,
     isDetailsLoaded$,
     details$,
-  } = createListing({ store, pokemonService })
+  } = createListing({ store, pokemonService, router })
   select(1)
   expect(isDetailsLoaded$).toBeObservableBoolean('ft')
   expect(details$).toBeObservable('01', {
@@ -57,7 +58,7 @@ test('select pokemon', coreMarbles(({ expect, coldCall }) => {
   createNavigation({ store, navigationService })
   const {
     details$,
-  } = createListing({ store, pokemonService })
+  } = createListing({ store, pokemonService, router })
   coldCall('1', {
     1: () => navigationService.push({
       pathname: '/pokemon/1',
