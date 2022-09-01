@@ -14,8 +14,7 @@ test('Route not found', () => {
 
 test('Resolve route', () => {
   const router = createRouter([{
-    path: '/',
-    action: () => 'Main page',
+    route: '/',
     id: 'INDEX',
   }])
   const resolved = router.resolve({
@@ -23,41 +22,59 @@ test('Resolve route', () => {
     search: '',
     hash: '',
   })
-  expect(resolved).toBe('Main page')
+  expect(resolved).toEqual({
+    id: 'INDEX',
+    route: '/',
+    pathname: '/',
+    search: new URLSearchParams(''),
+    hash: '',
+    params: {},
+  })
 })
 
 test('Resolve route params', () => {
   const router = createRouter([{
-    path: '/:id',
-    action: (context, { id }) => `Main page ${id}`,
+    route: '/:id',
     id: 'INDEX',
   }])
   const resolved = router.resolve({
     pathname: '/1',
-    search: '',
-    hash: '',
+    search: 'a=1&b=2',
+    hash: 'hash',
   })
-  expect(resolved).toBe('Main page 1')
+  expect(resolved).toEqual({
+    id: 'INDEX',
+    route: '/:id',
+    pathname: '/1',
+    search: new URLSearchParams('a=1&b=2'),
+    hash: 'hash',
+    params: { id: '1' },
+  })
 })
 
 test('Match route by id: match', () => {
   const router = createRouter([{
-    path: '/:id',
-    action: (context, { id }) => `Main page ${id as string}`,
+    route: '/:id',
     id: 'INDEX',
   }])
   const match = router.match({
     pathname: '/1',
-    search: '',
-    hash: '',
+    search: 'a=1&b=2',
+    hash: 'hash',
   }, 'INDEX')
-  expect(match).toEqual({ id: '1' })
+  expect(match).toEqual({
+    id: 'INDEX',
+    route: '/:id',
+    pathname: '/1',
+    search: new URLSearchParams('a=1&b=2'),
+    hash: 'hash',
+    params: { id: '1' },
+  })
 })
 
 test('Match route by id: no match', () => {
   const router = createRouter([{
-    path: '/path/:id',
-    action: (context, { id }) => `Main page ${id as string}`,
+    route: '/path/:id',
     id: 'INDEX',
   }])
   const match = router.match({

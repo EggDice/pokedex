@@ -12,16 +12,14 @@ import type { Router } from './router'
 interface NavigationFeatureArgs<APP_STORE_EVENT extends CoreEvent> {
   store: CoreStore<{ navigation: NavigationState }, APP_STORE_EVENT>
   navigationService: NavigationService
-  router?: Router<any>
+  router?: Router
 }
 
-type GetRouteType<T> = T extends Router<infer ROUTE> ? ROUTE : never
-
-export interface NavigationFeature<T> extends NavigationQuery<T>, NavigationCommand {}
+export interface NavigationFeature extends NavigationQuery, NavigationCommand {}
 
 export const createNavigation = <APP_STORE_EVENT extends CoreEvent>
   ({ store, navigationService, router = createRouter([]) }: NavigationFeatureArgs<APP_STORE_EVENT | NavigationEvent>):
-  NavigationFeature<GetRouteType<typeof router>> => {
+  NavigationFeature => {
   const query = navigationQuery(store)
   const command = navigationCommand(store)
   const {

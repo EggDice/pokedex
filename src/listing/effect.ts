@@ -18,7 +18,7 @@ interface ListingEffect<
 
 interface ListingEffectArgs {
   pokemonService: PokemonService
-  router: Router<any>
+  router: Router
 }
 
 export const listingEffect =
@@ -79,10 +79,10 @@ export const listingEffect =
           (event: NavigationEventPlatformNavigation) =>
             router.match(event.payload, 'SELECT_POKEMON'),
         ),
-        filter((params) => params !== undefined),
-        map((params) => ({
+        filter((route) => route !== undefined),
+        map((route) => ({
           type: 'listing/select',
-          payload: Number(params?.id),
+          payload: Number(route?.params.id),
         })),
       )
 

@@ -1,7 +1,7 @@
 import { listingEffect } from './effect'
 import { coreMarbles } from '@core/marbles'
 import { map } from 'rxjs/operators'
-import { router } from '@/delivery/react/app'
+import { router } from '@/router'
 import {
   pokemonServiceFake as pokemonService,
   BULBASAUR,

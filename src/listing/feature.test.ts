@@ -5,7 +5,7 @@ import { createNavigation } from '@/navigation'
 import { createNavigationServiceFake as createNavigationService } from '@/navigation/fake'
 import { pokemonServiceFake as pokemonService, BULBASAUR } from '@/pokemon/fake'
 import { createAppStore } from './fake'
-import { router } from '@/delivery/react/app'
+import { router } from '@/router'
 
 test('load pokemon list', coreMarbles(({ expect }) => {
   const { store } = createAppStore()
@@ -55,7 +55,7 @@ test('select pokemon', coreMarbles(({ expect }) => {
 test('select pokemon', coreMarbles(({ expect, coldCall }) => {
   const { store } = createAppStore()
   const navigationService = createNavigationService()
-  createNavigation({ store, navigationService })
+  createNavigation({ store, navigationService, router })
   const {
     details$,
   } = createListing({ store, pokemonService, router })

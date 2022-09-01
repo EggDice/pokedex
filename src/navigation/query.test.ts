@@ -22,9 +22,8 @@ test('location$ should give the current location', coreMarbles(({ expect, cold }
 
 test('route$ should give the current route', coreMarbles(({ expect, cold }) => {
   const router = createRouter([{
-    path: '/path/:id',
+    route: '/path/:id',
     id: 'PATH',
-    action: (context, { id }) => `Page id: ${id as string}`,
   }])
   const { route$ } = navigationQuery(getStateReadable(cold('l', {
     l: {
@@ -34,6 +33,13 @@ test('route$ should give the current route', coreMarbles(({ expect, cold }) => {
     },
   })), router)
   expect(route$).toBeObservable('l', {
-    l: 'Page id: 1',
+    l: {
+      id: 'PATH',
+      route: '/path/:id',
+      pathname: '/path/1',
+      search: new URLSearchParams('a=1&b=2'),
+      hash: 'some',
+      params: { id: '1' },
+    },
   })
 }))

@@ -6,7 +6,6 @@ import { getExternalServicesFake as getExternalServices } from '@/app/external-s
 import { getInternalServices } from '@/app/internal-services'
 import { preRender } from '@/app/pre-render'
 import { getDelivery } from '@/delivery/react/root-fake'
-import { router } from '@/delivery/react/app/router'
 import type { ReactDelivery } from '@/delivery/react/root-fake'
 import type { ExternalServices, InternalServices } from '@/app/type'
 
@@ -16,7 +15,7 @@ export const render = (ui: JSX.Element, options?: RenderOptions): InternalServic
   // It would be only undefined if there is an error, the type check would not have any upside in
   // the test so casting to avoid null checking in tests
   createApplication<ExternalServices, InternalServices, ReactDelivery, undefined>({
-    getExternalServices: () => ({ ...getExternalServices(), router }),
+    getExternalServices,
     getInternalServices,
     preRender,
     getDelivery,

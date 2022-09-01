@@ -11,7 +11,7 @@ import type { Router } from '@/navigation'
 interface ListingFeatureArgs<APP_STORE_EVENT extends CoreEvent> {
   store: CoreStore<{ listing: ListingState }, APP_STORE_EVENT>
   pokemonService: PokemonService
-  router: Router<any>
+  router: Router
 }
 
 export interface ListingFeature extends ListingQuery, ListingCommand {}
