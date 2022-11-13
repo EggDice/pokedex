@@ -6,7 +6,7 @@ import type { Observable } from 'rxjs'
 type Marbles = typeof marbles
 type MarblesRunner = Parameters<Marbles>[0]
 type MarblesParam = Parameters<MarblesRunner>[0]
-type Runner = (m: MarblesExtensions) => ReturnType<MarblesRunner>
+type Runner = (m: MarblesExtensions, ...args: any[]) => ReturnType<MarblesRunner>
 type MarbleFunctions = Record<string, () => void>
 
 interface MarblesExtensions extends MarblesParam {
@@ -29,7 +29,7 @@ class ExtendedExpect<T> extends Expect<T> {
   }
 }
 
-export const coreMarbles = (runner: Runner): (() => void) => marbles((m) => {
+export const coreMarbles = (runner: Runner): (() => void) => (...args: any[]) => marbles((m) => {
   const coldCall = (marble: string, functions: MarbleFunctions): void => {
     const marbleDefinition = Object.fromEntries(
       Object.keys(functions).map((key) => [key, key]),
@@ -65,8 +65,8 @@ export const coreMarbles = (runner: Runner): (() => void) => marbles((m) => {
     scheduler: m.scheduler,
     teardown: m.teardown.bind(m),
     time: m.time.bind(m),
-  })
-})
+  }, ...args)
+})()
 
 export const MARBLES_BOOLEAN = {
   t: true,

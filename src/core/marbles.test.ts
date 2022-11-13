@@ -25,3 +25,10 @@ test('it should create a boolean marble', coreMarbles(({ expect, coldBoolean }) 
 test('it should assert a boolean marble', coreMarbles(({ expect, cold }) => {
   expect(cold('tf', { t: true, f: false })).toBeObservableBoolean('tf')
 }))
+
+test.each([
+  ['tf', 'tf'],
+  ['ft', 'ft'],
+])('it should work with each', coreMarbles(({ expect, coldBoolean }, a, b) => {
+  expect(coldBoolean(a)).toBeObservableBoolean(b)
+}))
