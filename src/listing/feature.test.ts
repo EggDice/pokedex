@@ -3,7 +3,7 @@ import { coreMarbles } from '@core/marbles'
 import { createListing } from './feature'
 import { createNavigation } from '@/navigation'
 import { createNavigationServiceFake as createNavigationService } from '@/navigation/fake'
-import { pokemonServiceFake as pokemonService, BULBASAUR } from '@/pokemon/fake'
+import { createPokemonServiceFake, BULBASAUR } from '@/pokemon/fake'
 import { createAppStore } from './fake'
 import { router } from '@/router'
 
@@ -71,3 +71,5 @@ test('select pokemon', coreMarbles(({ expect, coldCall }) => {
     1: BULBASAUR,
   })
 }))
+
+const pokemonService = createPokemonServiceFake()

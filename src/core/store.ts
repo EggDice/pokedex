@@ -89,6 +89,11 @@ export interface CoreStoreSlice<
   eventCreators: StoreEventCreators<STATE, CASE_REDUCERS>
 };
 
+export interface StoreError {
+  message: string
+  stack: string
+}
+
 export const createCoreStore = <
   STATE,
   EVENT extends StoreEvent | PayloadStoreEvent,
@@ -141,3 +146,10 @@ export const createCoreStoreSlice = <
         unknown as StoreEventCreators<STATE, CASE_REDUCERS>,
   }
 }
+
+export const toStoreError = ({ message, stack = '' }: Error): StoreError => ({
+  message,
+  stack,
+})
+
+export const createStoreError = (message: string): StoreError => toStoreError(new Error(message))

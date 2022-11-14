@@ -1,7 +1,12 @@
 import { mapTo } from 'rxjs/operators'
 import { coreMarbles } from '@core/marbles'
 import { filterByType } from '@core/effect'
-import { createCoreStore, createCoreStoreSlice } from '@core/store'
+import {
+  createCoreStore,
+  createCoreStoreSlice,
+  toStoreError,
+  createStoreError,
+} from '@core/store'
 import type { CoreReducer } from '@core/store'
 
 type CountState = number
@@ -166,3 +171,16 @@ test('effect triggering another', coreMarbles(({ expect }) => {
   coreStore.send({ type: 'count/start' })
   expect(coreStore.state$).toBeObservable('2', { 2: { count: 2 } })
 }))
+
+test('to store error', () => {
+  const error = new Error('message')
+  const storeError = toStoreError(error)
+  expect(storeError.message).toBe('message')
+  expect(storeError.stack.length > 0).toBe(true)
+})
+
+test('create store error', () => {
+  const storeError = createStoreError('message')
+  expect(storeError.message).toBe('message')
+  expect(storeError.stack.length > 0).toBe(true)
+})

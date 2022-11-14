@@ -3,11 +3,11 @@ import { coreMarbles } from '@core/marbles'
 import { map } from 'rxjs/operators'
 import { router } from '@/router'
 import {
-  pokemonServiceFake as pokemonService,
+  createPokemonServiceFake,
   BULBASAUR,
   BULBASAUR_LISTED,
-} from '../pokemon/fake'
-import type { ListingEvent, ListingEventListLoaded } from './store'
+} from '@/pokemon/fake'
+import type { ListingEvent, ListingEventListLoaded, ListingEventFetchError } from './store'
 
 test('load pokemon list', coreMarbles(({ expect, cold }) => {
   const FETCH_ALL: ListingEvent = { type: 'listing/fetchAll' }
@@ -18,6 +18,28 @@ test('load pokemon list', coreMarbles(({ expect, cold }) => {
   )
   expect(output$).toBeObservable('-d', {
     d: { type: 'listing/listLoaded', payload: 151 },
+  })
+}))
+
+test('load pokemon list error', coreMarbles(({ expect, cold }) => {
+  const error = new Error('Failed to fetch')
+  const pokemonService = createPokemonServiceFake({
+    getAllPokemon: {
+      type: 'observable',
+      error,
+    },
+  })
+  const FETCH_ALL: ListingEvent = { type: 'listing/fetchAll' }
+  const effect = listingEffect({ pokemonService, router })
+  const event$ = cold('s', { s: FETCH_ALL })
+  const output$ = effect.handleFetchAll(event$).pipe(
+    map(payloadErrorToItsMessage),
+  )
+  expect(output$).toBeObservable('-(e|)', {
+    e: {
+      type: 'listing/listError',
+      payload: 'Failed to fetch pokemon list',
+    },
   })
 }))
 
@@ -90,5 +112,10 @@ test('handle select route', coreMarbles(({ expect, cold }) => {
   })
 }))
 
+const pokemonService = createPokemonServiceFake()
+
 const payloadListToItsLength = (event: ListingEvent): { type: string, payload: number } =>
   ({ ...event, payload: (event as ListingEventListLoaded).payload.length })
+
+const payloadErrorToItsMessage = (event: ListingEvent): { type: string, payload: string } =>
+  ({ ...event, payload: (event as ListingEventFetchError).payload.message })

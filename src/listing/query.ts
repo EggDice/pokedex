@@ -11,18 +11,19 @@ export interface ListingQuery {
   searchTerm$: Observable<string>
   isModalOpen$: Observable<boolean>
   details$: Observable<Pokemon | undefined>
+  isError$: Observable<boolean>
 }
 
 export const listingQuery = (store: StateReadable<{ listing: ListingState }>): ListingQuery => ({
-  isListLoaded$:
-      store.state$.pipe(map(getListingStatus),
-        distinctUntilChanged(),
-        map((listingStatus) => listingStatus !== 'loading-list' && listingStatus !== 'initial'),
-      ),
+  isListLoaded$: store.state$.pipe(
+    map(getListingStatus),
+    map((listingStatus) => listingStatus === 'loaded' || listingStatus === 'loading-details'),
+    distinctUntilChanged(),
+  ),
   isDetailsLoaded$: store.state$.pipe(
     map(getListingStatus),
+    map((listingStatus) => listingStatus === 'loaded'),
     distinctUntilChanged(),
-    map((listingStatus) => listingStatus !== 'loading-details' && listingStatus !== 'initial'),
   ),
   pokemons$: store.state$.pipe(
     map(({ listing: { pokemons } }) => pokemons),
@@ -34,11 +35,16 @@ export const listingQuery = (store: StateReadable<{ listing: ListingState }>): L
   ),
   isModalOpen$: store.state$.pipe(
     map(({ listing: { selectedPokemon } }) => selectedPokemon),
-    distinctUntilChanged(),
     map(selectedPokemon => selectedPokemon > 0),
+    distinctUntilChanged(),
   ),
   details$: store.state$.pipe(
     map(({ listing: { details } }) => details),
+    distinctUntilChanged(),
+  ),
+  isError$: store.state$.pipe(
+    map(getListingStatus),
+    map((listingStatus) => listingStatus === 'loading-error'),
     distinctUntilChanged(),
   ),
 })

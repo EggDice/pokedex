@@ -1,7 +1,8 @@
 import { createPokemonService } from './service'
 import { httpGetFake as httpGet } from '@/http/fake'
+import { addErrorMethodsToFake } from '@core/fake'
 
-export const pokemonServiceFake = createPokemonService(httpGet)
+export const createPokemonServiceFake = addErrorMethodsToFake(() => createPokemonService(httpGet))
 
 export const BULBASAUR = {
   id: 1,

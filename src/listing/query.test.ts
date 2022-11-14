@@ -2,15 +2,31 @@ import { coreMarbles } from '@core/marbles'
 import { listingQuery } from './query'
 import { getStateReadable } from './fake'
 
-test('isListLoaded$ should be false if not loaded', coreMarbles(({ expect, cold }) => {
-  const { isListLoaded$ } = listingQuery(getStateReadable(cold('iadff', STATE_VALUES)))
-  expect(isListLoaded$).toBeObservableBoolean('fftt')
-}))
+test.each([
+  ['i', 'f'],
+  ['a', 'f'],
+  ['d', 't'],
+  ['e', 'f'],
+  ['f', 't'],
+  ['ff', 't'],
+])('isListLoaded$ should be false if not loaded - %s -> %s',
+  coreMarbles(({ expect, cold }, a, b) => {
+    const { isListLoaded$ } = listingQuery(getStateReadable(cold(a, STATE_VALUES)))
+    expect(isListLoaded$).toBeObservableBoolean(b)
+  }))
 
-test('isDetailsLoaded$ should be false if not loaded', coreMarbles(({ expect, cold }) => {
-  const { isDetailsLoaded$ } = listingQuery(getStateReadable(cold('iadff', STATE_VALUES)))
-  expect(isDetailsLoaded$).toBeObservableBoolean('ftft')
-}))
+test.each([
+  ['i', 'f'],
+  ['a', 'f'],
+  ['d', 'f'],
+  ['e', 'f'],
+  ['f', 't'],
+  ['ff', 't'],
+])('isDetailsLoaded$ should be false if not loaded - %s -> %s',
+  coreMarbles(({ expect, cold }, a, b) => {
+    const { isDetailsLoaded$ } = listingQuery(getStateReadable(cold(a, STATE_VALUES)))
+    expect(isDetailsLoaded$).toBeObservableBoolean(b)
+  }))
 
 test('isDetailsLoaded$ should be false if not loaded', coreMarbles(({ expect, cold }) => {
   const { isModalOpen$ } = listingQuery(getStateReadable(cold('011', {
@@ -41,9 +57,23 @@ test('details$ should give the last searched term', coreMarbles(({ expect, cold 
   expect(details$).toBeObservable(cold('0', { 0: undefined }))
 }))
 
+test.each([
+  ['i', 'f'],
+  ['a', 'f'],
+  ['d', 'f'],
+  ['e', 't'],
+  ['f', 'f'],
+  ['ee', 't'],
+])('isError$ should be true if loading failed - %s -> %s',
+  coreMarbles(({ expect, cold }, a, b) => {
+    const { isError$ } = listingQuery(getStateReadable(cold(a, STATE_VALUES)))
+    expect(isError$).toBeObservableBoolean(b)
+  }))
+
 const STATE_VALUES = {
   i: { listingStatus: 'initial' as const },
   a: { listingStatus: 'loading-list' as const },
   d: { listingStatus: 'loading-details' as const },
   f: { listingStatus: 'loaded' as const },
+  e: { listingStatus: 'loading-error' as const },
 }

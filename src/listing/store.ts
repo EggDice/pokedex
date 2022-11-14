@@ -4,6 +4,7 @@ import type {
   StoreEvent,
   CoreEvent,
   CoreStoreSlice,
+  StoreError,
 } from '@core/store'
 import type {
   Pokemon,
@@ -19,6 +20,7 @@ export type ListingStatus =
   | 'loading-list'
   | 'loading-details'
   | 'loaded'
+  | 'loading-error'
 
 export interface ListingState {
   listingStatus: ListingStatus
@@ -42,6 +44,9 @@ export type ListingEventSelect =
 export type ListingEventDetailsLoaded =
   PayloadStoreEvent<'listing/detailsLoaded', Pokemon>
 
+export type ListingEventFetchError =
+  PayloadStoreEvent<'listing/listError', StoreError>
+
 export type ListingEvent =
   | CoreEvent
   | ListingEventFetcAll
@@ -49,10 +54,11 @@ export type ListingEvent =
   | ListingEventSearch
   | ListingEventSelect
   | ListingEventDetailsLoaded
+  | ListingEventFetchError
   | NavigationEventAppNavigation
   | NavigationEventPlatformNavigation
 
-const fetchAll = (state: ListingState, event: ListingEventFetcAll): ListingState => ({
+const fetchAll = (state: ListingState, _: ListingEventFetcAll): ListingState => ({
   ...state,
   listingStatus: 'loading-list' as const,
 })
@@ -81,12 +87,18 @@ const detailsLoaded = (state: ListingState, event: ListingEventDetailsLoaded): L
   details: event.payload,
 })
 
+const listError = (state: ListingState, _: ListingEventFetchError): ListingState => ({
+  ...state,
+  listingStatus: 'loading-error' as const,
+})
+
 const reducers = {
   fetchAll,
   listLoaded,
   search,
   select,
   detailsLoaded,
+  listError,
 }
 
 const initialState: ListingState = {
@@ -111,6 +123,7 @@ export const {
     search: searchCreator,
     detailsLoaded: detailsLoadedCreator,
     select: selectCreator,
+    listError: listErrorCreator,
   },
   reducer: listingReducer,
 } = listingSlice

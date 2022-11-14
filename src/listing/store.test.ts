@@ -5,7 +5,9 @@ import {
   searchCreator,
   detailsLoadedCreator,
   selectCreator,
+  listErrorCreator,
 } from './store'
+import { createStoreError } from '@core/store'
 
 test('Default state is loading', () => {
   const initialState = listingReducer(undefined, { type: 'init' })
@@ -115,5 +117,23 @@ test('Select pokemon loaded', () => {
       image: '',
       id: 1,
     },
+  })
+})
+
+test('Error during loading listing', () => {
+  const initialState = {
+    listingStatus: 'loading-details' as const,
+    searchTerm: '',
+    pokemons: [],
+    selectedPokemon: 0,
+    details: undefined,
+  }
+  const state = listingReducer(initialState, listErrorCreator(createStoreError('')))
+  expect(state).toEqual({
+    listingStatus: 'loading-error',
+    searchTerm: '',
+    pokemons: [],
+    selectedPokemon: 0,
+    details: undefined,
   })
 })

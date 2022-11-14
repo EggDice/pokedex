@@ -1,9 +1,10 @@
 import type { PokemonService } from '@/pokemon'
 import { of } from 'rxjs'
-import { switchMap, map, filter } from 'rxjs/operators'
+import { switchMap, map, filter, catchError } from 'rxjs/operators'
 import { filterByType } from '@core/effect'
 import type { CoreEffectFunction } from '@core/effect'
-import { listLoadedCreator, detailsLoadedCreator } from './store'
+import { createStoreError } from '@core/store'
+import { listLoadedCreator, detailsLoadedCreator, listErrorCreator } from './store'
 import type { ListingEvent } from './store'
 import type { NavigationEventPlatformNavigation, Router } from '@/navigation'
 
@@ -30,6 +31,7 @@ export const listingEffect =
         filterByType('listing/fetchAll'),
         switchMap(pokemonService.getAllPokemon),
         map(listLoadedCreator),
+        catchError(() => of(listErrorCreator(createStoreError('Failed to fetch pokemon list')))),
       )
 
     const handleSearch: CoreEffectFunction<ListingEvent> = (event$) =>
