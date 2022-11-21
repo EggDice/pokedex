@@ -8,12 +8,13 @@ import {
   BULBASAUR_LISTED,
 } from '@/pokemon/fake'
 import type { ListingEvent, ListingEventListLoaded, ListingEventFetchError } from './store'
+import { of } from 'rxjs'
 
 test('load pokemon list', coreMarbles(({ expect, cold }) => {
   const FETCH_ALL: ListingEvent = { type: 'listing/fetchAll' }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: FETCH_ALL })
-  const output$ = effect.handleFetchAll(event$).pipe(
+  const output$ = effect.handleFetchAll(event$, STATE).pipe(
     map(payloadListToItsLength),
   )
   expect(output$).toBeObservable('-d', {
@@ -32,7 +33,7 @@ test('load pokemon list error', coreMarbles(({ expect, cold }) => {
   const FETCH_ALL: ListingEvent = { type: 'listing/fetchAll' }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: FETCH_ALL })
-  const output$ = effect.handleFetchAll(event$).pipe(
+  const output$ = effect.handleFetchAll(event$, STATE).pipe(
     map(payloadErrorToItsMessage),
   )
   expect(output$).toBeObservable('-(e|)', {
@@ -47,7 +48,7 @@ test('search pokemon list', coreMarbles(({ expect, cold }) => {
   const SEARCH_BULBASAUR: ListingEvent = { type: 'listing/search', payload: 'Bulbasaur' }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: SEARCH_BULBASAUR })
-  expect(effect.handleSearch(event$)).toBeObservable('-d', {
+  expect(effect.handleSearch(event$, STATE)).toBeObservable('-d', {
     d: {
       type: 'listing/listLoaded',
       payload: [BULBASAUR_LISTED],
@@ -59,7 +60,7 @@ test('load pokemon list on empty search', coreMarbles(({ expect, cold }) => {
   const SEARCH_EMPTY: ListingEvent = { type: 'listing/search', payload: '' }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: SEARCH_EMPTY })
-  const output$ = effect.handleSearch(event$).pipe(
+  const output$ = effect.handleSearch(event$, STATE).pipe(
     map(payloadListToItsLength),
   )
   expect(output$).toBeObservable('-d', {
@@ -71,7 +72,7 @@ test('pick pokemon', coreMarbles(({ expect, cold }) => {
   const SELECT_BULBASAUR: ListingEvent = { type: 'listing/select', payload: 1 }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: SELECT_BULBASAUR })
-  expect(effect.handleSelect(event$)).toBeObservable('-(dl)', {
+  expect(effect.handleSelect(event$, STATE)).toBeObservable('-(dl)', {
     d: {
       type: 'listing/detailsLoaded',
       payload: BULBASAUR,
@@ -91,7 +92,7 @@ test('don\'t load pokemon 0', coreMarbles(({ expect, cold }) => {
   const SELECT_EMPTY: ListingEvent = { type: 'listing/select', payload: 0 }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: SELECT_EMPTY })
-  expect(effect.handleSelect(event$)).toBeObservable('', {})
+  expect(effect.handleSelect(event$, STATE)).toBeObservable('', {})
 }))
 
 test('handle select route', coreMarbles(({ expect, cold }) => {
@@ -107,7 +108,7 @@ test('handle select route', coreMarbles(({ expect, cold }) => {
   const SELECT_BULBASAUR: ListingEvent = { type: 'listing/select', payload: 1 }
   const effect = listingEffect({ pokemonService, router })
   const event$ = cold('s', { s: SELECT_NAVIGATION })
-  expect(effect.handleSelectRoute(event$)).toBeObservable('s', {
+  expect(effect.handleSelectRoute(event$, STATE)).toBeObservable('s', {
     s: SELECT_BULBASAUR,
   })
 }))
@@ -119,3 +120,5 @@ const payloadListToItsLength = (event: ListingEvent): { type: string, payload: n
 
 const payloadErrorToItsMessage = (event: ListingEvent): { type: string, payload: string } =>
   ({ ...event, payload: (event as ListingEventFetchError).payload.message })
+
+const STATE = of(undefined)

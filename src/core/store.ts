@@ -7,7 +7,7 @@ import type { CoreEffectFunction } from './effect'
 export interface CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> extends
   StateReadable<ALL_STATE>,
   EventReceiver<ALL_EVENT>,
-  EffectRegistry<ALL_EVENT> {}
+  EffectRegistry<ALL_STATE, ALL_EVENT> {}
 
 export interface StateReadable<ALL_STATE> {
   state$: Observable<ALL_STATE>
@@ -17,8 +17,8 @@ export interface EventReceiver<ALL_EVENT extends CoreEvent> {
   send: (event: ALL_EVENT) => void
 }
 
-export interface EffectRegistry<ALL_EVENT extends CoreEvent> {
-  registerEffect: (effect: CoreEffectFunction<ALL_EVENT>) => void
+export interface EffectRegistry<ALL_STATE, ALL_EVENT extends CoreEvent> {
+  registerEffect: (effect: CoreEffectFunction<ALL_STATE, ALL_EVENT>) => void
 }
 
 export type CoreReducer<STATE, EVENT extends CoreEvent = CoreEvent> = (
@@ -107,19 +107,22 @@ export const createCoreStore = <
     eventAfterEffects$.next(event)
   })
   event$$.next(event$)
-  return {
-    state$: new Observable(subscriber => {
+  const state$: Observable<STATE> = new Observable(subscriber => {
+    subscriber.next(store.getState())
+    store.subscribe(() => {
       subscriber.next(store.getState())
-      store.subscribe(() => {
-        subscriber.next(store.getState())
-      })
-    }),
-    send: (action) => {
-      event$.next(action)
-    },
-    registerEffect: (effect) => {
-      event$$.next(effect(eventAfterEffects$))
-    },
+    })
+  })
+  const send = (action: EVENT): void => {
+    event$.next(action)
+  }
+  const registerEffect = (effect: CoreEffectFunction<STATE, EVENT>): void => {
+    event$$.next(effect(eventAfterEffects$, state$))
+  }
+  return {
+    state$,
+    send,
+    registerEffect,
   }
 }
 

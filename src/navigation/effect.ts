@@ -7,35 +7,38 @@ import { filterByType } from '@core/effect'
 import type { CoreEffectFunction } from '@core/effect'
 import type { CoreEvent } from '@core/store'
 
-interface NavigationEffect<APP_STORE_EVENT extends CoreEvent> {
-  handleAppNavigation: CoreEffectFunction<APP_STORE_EVENT>
-  handlePlatformNavigation: CoreEffectFunction<APP_STORE_EVENT>
+interface NavigationEffect<APP_STORE_STATE, APP_STORE_EVENT extends CoreEvent> {
+  handleAppNavigation: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
+  handlePlatformNavigation: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
 }
 
 export const navigationEffect =
   <
+    APP_STORE_STATE,
     APP_STORE_EVENT extends NavigationEvent,
-  > (navigationService: NavigationService): NavigationEffect<APP_STORE_EVENT | NavigationEvent> => {
-    const handleAppNavigation: CoreEffectFunction<NavigationEvent> = (event$) =>
-      event$.pipe(
-        filterByType('navigation/appNavigation'),
-        tap(({ payload }) => navigationService.push(payload)),
-        map(({ payload }) => changeLocationCreator(payload)),
-      )
+  > (navigationService: NavigationService):
+  NavigationEffect<APP_STORE_STATE, APP_STORE_EVENT | NavigationEvent> => {
+        type EffectFunction = CoreEffectFunction<APP_STORE_STATE, NavigationEvent>
+        const handleAppNavigation: EffectFunction = (event$) =>
+          event$.pipe(
+            filterByType('navigation/appNavigation'),
+            tap(({ payload }) => navigationService.push(payload)),
+            map(({ payload }) => changeLocationCreator(payload)),
+          )
 
-    const handlePlatformNavigation: CoreEffectFunction<NavigationEvent> = (event$) =>
-      navigationService.location$.pipe(
-        switchMap((location) => of(
-          {
-            type: 'navigation/platformNavigation',
-            payload: location,
-          },
-          changeLocationCreator(location),
-        )),
-      )
+        const handlePlatformNavigation: EffectFunction = () =>
+          navigationService.location$.pipe(
+            switchMap((location) => of(
+              {
+                type: 'navigation/platformNavigation',
+                payload: location,
+              },
+              changeLocationCreator(location),
+            )),
+          )
 
-    return {
-      handleAppNavigation,
-      handlePlatformNavigation,
-    }
+        return {
+          handleAppNavigation,
+          handlePlatformNavigation,
+        }
   }

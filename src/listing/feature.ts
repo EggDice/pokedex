@@ -26,7 +26,7 @@ export const createListing = <APP_STORE_EVENT extends CoreEvent>
     handleSearch,
     handleSelect,
     handleSelectRoute,
-  } = listingEffect<APP_STORE_EVENT>({ pokemonService, router })
+  } = listingEffect<{ listing: ListingState }, APP_STORE_EVENT>({ pokemonService, router })
 
   store.registerEffect(handleFetchAll)
   store.registerEffect(handleSearch)

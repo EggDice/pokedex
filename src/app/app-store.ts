@@ -21,7 +21,7 @@ export type AppStateReadable = StateReadable<AppStoreState>
 
 export type AppEventReceiver = EventReceiver<AppStoreEvent>
 
-export type AppEffectRegistry = EffectRegistry<AppStoreEvent>
+export type AppEffectRegistry = EffectRegistry<AppStoreState, AppStoreEvent>
 
 export const appStore = (): AppStore => createCoreStore<AppStoreState, AppStoreEvent>({
   listing: listingReducer,

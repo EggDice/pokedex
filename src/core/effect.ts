@@ -4,11 +4,11 @@ import type { OperatorFunction, Observable } from 'rxjs'
 import type { CoreEvent } from '@core/store'
 import type { StringLiteral } from '@core/type'
 
-export type CoreEffectFunction<EVENT extends CoreEvent> =
- (event$: Observable<EVENT>) => Observable<EVENT>
+export type CoreEffectFunction<STATE, EVENT extends CoreEvent> =
+ (event$: Observable<EVENT>, state$: Observable<STATE>) => Observable<EVENT>
 
-export interface CoreEffect<EVENT extends CoreEvent> {
-  [key: string]: CoreEffectFunction<EVENT>
+export interface CoreEffect<STATE, EVENT extends CoreEvent> {
+  [key: string]: CoreEffectFunction<STATE, EVENT>
 }
 
 type GetByType<ALL, TYPE_STRING> = Extract<ALL, { type: StringLiteral<TYPE_STRING> }>

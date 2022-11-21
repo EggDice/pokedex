@@ -9,12 +9,13 @@ import type { ListingEvent } from './store'
 import type { NavigationEventPlatformNavigation, Router } from '@/navigation'
 
 interface ListingEffect<
+  APP_STORE_STATE,
   APP_STORE_EVENT extends ListingEvent,
 > {
-  handleFetchAll: CoreEffectFunction<APP_STORE_EVENT>
-  handleSearch: CoreEffectFunction<APP_STORE_EVENT>
-  handleSelect: CoreEffectFunction<APP_STORE_EVENT>
-  handleSelectRoute: CoreEffectFunction<APP_STORE_EVENT>
+  handleFetchAll: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
+  handleSearch: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
+  handleSelect: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
+  handleSelectRoute: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
 }
 
 interface ListingEffectArgs {
@@ -24,9 +25,12 @@ interface ListingEffectArgs {
 
 export const listingEffect =
   <
+    APP_STORE_STATE,
     APP_STORE_EVENT extends ListingEvent,
-  > ({ pokemonService, router }: ListingEffectArgs): ListingEffect<APP_STORE_EVENT | ListingEvent> => {
-    const handleFetchAll: CoreEffectFunction<ListingEvent> = (event$) =>
+  > ({ pokemonService, router }: ListingEffectArgs):
+  ListingEffect<APP_STORE_STATE, APP_STORE_EVENT | ListingEvent> => {
+    type EffectFunction = CoreEffectFunction<APP_STORE_STATE, ListingEvent>
+    const handleFetchAll: EffectFunction = (event$) =>
       event$.pipe(
         filterByType('listing/fetchAll'),
         switchMap(pokemonService.getAllPokemon),
@@ -34,7 +38,7 @@ export const listingEffect =
         catchError(() => of(listErrorCreator(createStoreError('Failed to fetch pokemon list')))),
       )
 
-    const handleSearch: CoreEffectFunction<ListingEvent> = (event$) =>
+    const handleSearch: EffectFunction = (event$) =>
       event$.pipe(
         filterByType('listing/search'),
         map(({ payload }) => payload),
@@ -54,7 +58,7 @@ export const listingEffect =
         )),
       )
 
-    const handleSelect: CoreEffectFunction<ListingEvent> = (event$) =>
+    const handleSelect: EffectFunction = (event$) =>
       event$.pipe(
         filterByType('listing/select'),
         map(({ payload }) => payload),
@@ -74,7 +78,7 @@ export const listingEffect =
         )),
       )
 
-    const handleSelectRoute: CoreEffectFunction<ListingEvent> = (event$) =>
+    const handleSelectRoute: EffectFunction = (event$) =>
       event$.pipe(
         filterByType('navigation/platformNavigation'),
         map(
