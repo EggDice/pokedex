@@ -10,6 +10,11 @@ export type TestAppStoreState<STATE, STATE_KEY> = {
   [K in StringLiteral<STATE_KEY>]: STATE
 }
 
+export const STORE_INIT = {
+  type: 'init',
+  payload: undefined,
+}
+
 export interface StoreTools<
   STATE,
   EVENT extends CoreEvent,
@@ -100,7 +105,7 @@ type ThrowingSync = (...args: any[]) => never
 type ThrowingAsync = (...args: any[]) => Promise<never>
 type ThrowingObservable = (...args: any[]) => Observable<never>
 
-export const addErrorMethodsToFake = <T>(originalFake: (...args: any[]) => T) =>
+export const addErrorMethodsToFake = <T extends Object>(originalFake: (...args: any[]) => T) =>
   (configs: FakeConfigs<T> = {} as FakeConfigs<T>, ...restArgs: any[]):
   FakeWithThrowingMethods<T, typeof configs> => {
     const fake = originalFake(...restArgs)
@@ -117,11 +122,11 @@ const THROWING_METOD_GENERATORS = {
   sync: (error: Error) => () => { throw error },
   async: (error: Error) => async () => { throw error },
   observable: (error: Error) => () =>
-    timer(1).pipe(mergeMap(() => throwError(error))),
+    timer(1).pipe(mergeMap(() => throwError(() => error))),
 }
 
 const generateThrowingMethods =
-  <FAKE>(configs: FakeConfigs<FAKE>): ThrowingMethods<FAKE> => {
+  <FAKE extends Object>(configs: FakeConfigs<FAKE>): ThrowingMethods<FAKE> => {
     const entries: Array<[string, FakeConfig]> = Object.entries(configs)
     const throwingMethods = entries.map(([method, { error, type }]) =>
       [method, THROWING_METOD_GENERATORS[type](error)],

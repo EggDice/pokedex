@@ -6,10 +6,11 @@ import { SearchBox } from './search-box'
 import { DetailsDialog } from './details-modal'
 import { useObservableState } from 'observable-hooks'
 import './component.css'
+import { LISTING_NAMESPACE } from '@/listing/config'
 
 export const Listing: React.FC = () => {
   const {
-    listing: {
+    [LISTING_NAMESPACE]: {
       pokemons$,
       details$,
       isListLoaded$,

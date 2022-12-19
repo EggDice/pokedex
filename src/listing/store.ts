@@ -1,9 +1,7 @@
 import { createCoreStoreSlice } from '@core/store'
 import type {
-  PayloadStoreEvent,
-  StoreEvent,
-  CoreEvent,
-  CoreStoreSlice,
+  NamespacedStoreEvent,
+  NamespacedState,
   StoreError,
 } from '@core/store'
 import type {
@@ -14,6 +12,7 @@ import type {
   NavigationEventAppNavigation,
   NavigationEventPlatformNavigation,
 } from '@/navigation'
+import { LISTING_NAMESPACE } from './config'
 
 export type ListingStatus =
   | 'initial'
@@ -30,25 +29,29 @@ export interface ListingState {
   details: Pokemon | undefined
 }
 
-export type ListingEventFetcAll = StoreEvent<'listing/fetchAll'>
+type ListingStoreEvent<
+  SUB_TYPE extends string,
+  PAYLOAD = undefined,
+> = NamespacedStoreEvent<typeof LISTING_NAMESPACE, SUB_TYPE, PAYLOAD>
+
+export type ListingEventFetcAll = ListingStoreEvent<'fetchAll'>
 
 export type ListingEventListLoaded =
-  PayloadStoreEvent<'listing/listLoaded', ListedPokemon[]>
+  ListingStoreEvent<'listLoaded', ListedPokemon[]>
 
 export type ListingEventSearch =
-  PayloadStoreEvent<'listing/search', string>
+  ListingStoreEvent<'search', string>
 
 export type ListingEventSelect =
-  PayloadStoreEvent<'listing/select', number>
+  ListingStoreEvent<'select', number>
 
 export type ListingEventDetailsLoaded =
-  PayloadStoreEvent<'listing/detailsLoaded', Pokemon>
+  ListingStoreEvent<'detailsLoaded', Pokemon>
 
 export type ListingEventFetchError =
-  PayloadStoreEvent<'listing/listError', StoreError>
+  ListingStoreEvent<'listError', StoreError>
 
 export type ListingEvent =
-  | CoreEvent
   | ListingEventFetcAll
   | ListingEventListLoaded
   | ListingEventSearch
@@ -109,21 +112,24 @@ const initialState: ListingState = {
   details: undefined,
 }
 
-const listingSlice: CoreStoreSlice<ListingState, typeof reducers> =
+const listingSlice =
   createCoreStoreSlice({
-    name: 'listing',
+    name: LISTING_NAMESPACE,
     initialState,
     reducers,
   })
 
+export type AppStoreListingStateSlice = NamespacedState<typeof listingSlice>
+
 export const {
   eventCreators: {
-    fetchAll: fetchAllCreator,
-    listLoaded: listLoadedCreator,
-    search: searchCreator,
-    detailsLoaded: detailsLoadedCreator,
-    select: selectCreator,
-    listError: listErrorCreator,
+    createFetchAll,
+    createListLoaded,
+    createSearch,
+    createDetailsLoaded,
+    createSelect,
+    createListError,
   },
   reducer: listingReducer,
+  stateToListing,
 } = listingSlice

@@ -1,6 +1,8 @@
 import type { HttpGet } from '@/http'
 import type { ListingFeature } from '@/listing'
-import type { NavigationFeature, Router } from '@/navigation'
+import { LISTING_NAMESPACE } from '@/listing/config'
+import type { NavigationFeature } from '@/navigation'
+import { NAVIGATION_NAMESPACE } from '@/navigation/config'
 import type { History } from 'history'
 
 export interface ExternalServices {
@@ -9,6 +11,6 @@ export interface ExternalServices {
 }
 
 export interface InternalServices {
-  listing: ListingFeature
-  navigation: NavigationFeature
+  [LISTING_NAMESPACE]: ListingFeature
+  [NAVIGATION_NAMESPACE]: NavigationFeature
 }

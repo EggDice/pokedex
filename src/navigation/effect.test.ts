@@ -2,6 +2,7 @@ import { navigationEffect } from './effect'
 import { coreMarbles } from '@core/marbles'
 import { createNavigationServiceFake as createNavigationService } from './fake'
 import { of } from 'rxjs'
+import { createAppNavigation, createChangeLocation, createPlatformNavigation } from './store'
 
 test('app navigation', coreMarbles(({ expect, cold }) => {
   const LOCATION = {
@@ -9,8 +10,8 @@ test('app navigation', coreMarbles(({ expect, cold }) => {
     search: 'a=1&b=2',
     hash: 'some',
   }
-  const APP_NAVIGATION = { type: 'navigation/appNavigation' as const, payload: LOCATION }
-  const CHANGE_LOCATION = { type: 'navigation/changeLocation' as const, payload: LOCATION }
+  const APP_NAVIGATION = createAppNavigation(LOCATION)
+  const CHANGE_LOCATION = createChangeLocation(LOCATION)
   const navigationService = createNavigationService()
   const effect = navigationEffect(navigationService)
   const event$ = cold('-s', { s: APP_NAVIGATION })
@@ -27,8 +28,8 @@ test('platform navigation', coreMarbles(({ expect, cold }) => {
     search: '',
     hash: '',
   }
-  const PLATFORM_NAVIGATION = { type: 'navigation/platformNavigation' as const, payload: LOCATION }
-  const CHANGE_LOCATION = { type: 'navigation/changeLocation' as const, payload: LOCATION }
+  const PLATFORM_NAVIGATION = createPlatformNavigation(LOCATION)
+  const CHANGE_LOCATION = createChangeLocation(LOCATION)
   const navigationService = createNavigationService()
   const effect = navigationEffect(navigationService)
   expect(effect.handlePlatformNavigation(cold('', {}), STATE$)).toBeObservable('(pc)', {

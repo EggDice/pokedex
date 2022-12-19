@@ -33,13 +33,14 @@ export const createApplication = <
     run: (runArgs = {}) => {
       // Need to cast the default valuse because these are independent from the template variables
       const defaults = {
-        getInternalServices: (services: EXTERNAL_SERVICES) => services as INTERNAL_SERVICES,
+        getInternalServices:
+          (services: EXTERNAL_SERVICES) => services as unknown as INTERNAL_SERVICES,
         getExternalServices: () => ({} as unknown as EXTERNAL_SERVICES),
         preRender: () => {},
         getDelivery: () => ({} as unknown as DELIVERY),
         render: () => 0,
         onError: () => {},
-        topLevelErrorHandling: (cb: (err: Error) => void) => {},
+        topLevelErrorHandling: (_: (err: Error) => void) => {},
       }
       const {
         getExternalServices,

@@ -1,5 +1,4 @@
 import { navigationCommand } from './command'
-import { map } from 'rxjs/operators'
 import { coreMarbles } from '@core/marbles'
 import { createAppStore } from './fake'
 

@@ -1,4 +1,5 @@
 import { coreMarbles } from '@core/marbles'
+import { NAVIGATION_NAMESPACE } from './config'
 import { createAppStore, createNavigationServiceFake as createNavigationService } from './fake'
 import { createNavigation } from './feature'
 
@@ -40,7 +41,7 @@ test('handle platform navigations', coreMarbles(({ expect, coldCall }) => {
   })
   expect(store.state$).toBeObservable('l', {
     l: {
-      navigation: {
+      [NAVIGATION_NAMESPACE]: {
         pathname: '/path',
         search: 'a=1&b=2',
         hash: 'some',

@@ -55,7 +55,7 @@ test('select pokemon', coreMarbles(({ expect }) => {
 test('select pokemon', coreMarbles(({ expect, coldCall }) => {
   const { store } = createAppStore()
   const navigationService = createNavigationService()
-  createNavigation({ store, navigationService, router })
+  createNavigation({ store, navigationService })
   const {
     details$,
   } = createListing({ store, pokemonService, router })

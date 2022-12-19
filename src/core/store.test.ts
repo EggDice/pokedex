@@ -6,6 +6,7 @@ import {
   createCoreStoreSlice,
   toStoreError,
   createStoreError,
+  identityReducer,
 } from '@core/store'
 import type { CoreReducer } from '@core/store'
 
@@ -15,6 +16,7 @@ type AppendState = string
 
 interface TestIncrement {
   type: 'count/increment'
+  payload: undefined
 };
 
 interface TestIncrementAmount {
@@ -24,14 +26,17 @@ interface TestIncrementAmount {
 
 interface TestIncrementTwo {
   type: 'count/incrementTwo'
+  payload: undefined
 }
 
 interface TestStart {
   type: 'count/start'
+  payload: undefined
 }
 
 interface TestAppendA {
   type: 'append/appendA'
+  payload: undefined
 }
 
 type AllTestEvents =
@@ -67,7 +72,7 @@ test('store has incremented state', coreMarbles(({ expect }) => {
       return event.type === 'count/increment' ? state + 1 : state
     },
   })
-  coreStore.send({ type: 'count/increment' })
+  coreStore.send({ type: 'count/increment', payload: undefined })
   coreStore.send({ type: 'count/incrementAmount', payload: 5 })
   expect(coreStore.state$).toBeObservable('1', { 1: { count: 1 } })
 }))
@@ -84,12 +89,15 @@ test('create store slice', () => {
     },
   })
   const reducer: CoreReducer<CountState, AllTestEvents> = slice.reducer
-  const event: TestIncrement = slice.eventCreators.increment()
-  const event2: TestIncrementAmount = slice.eventCreators.incrementAmount(5)
-  expect(event.type).toEqual('count/increment')
-  expect(event2.type).toEqual('count/incrementAmount')
-  expect(reducer(initialState, event)).toEqual(1)
-  expect(reducer(initialState, event2)).toEqual(5)
+  const event: TestIncrement = slice.eventCreators.createIncrement()
+  const event2: TestIncrementAmount = slice.eventCreators.createIncrementAmount(5)
+  const stateToCount = slice.stateToCount
+  expect(slice.name).toBe('count')
+  expect(event.type).toBe('count/increment')
+  expect(event2.type).toBe('count/incrementAmount')
+  expect(reducer(initialState, event)).toBe(1)
+  expect(reducer(initialState, event2)).toBe(5)
+  expect(stateToCount({ count: 3 })).toBe(3)
 })
 
 test('create combined store', coreMarbles(({ expect }) => {
@@ -114,8 +122,8 @@ test('create combined store', coreMarbles(({ expect }) => {
     append: appendSlice.reducer,
   })
 
-  coreStore.send(countSlice.eventCreators.increment())
-  coreStore.send(appendSlice.eventCreators.appendA())
+  coreStore.send(countSlice.eventCreators.createIncrement())
+  coreStore.send(appendSlice.eventCreators.createAppendA())
   expect(coreStore.state$).toBeObservable('1', {
     1: {
       count: 1,
@@ -142,7 +150,7 @@ test('extending store with effects', coreMarbles(({ expect }) => {
     filterByType('count/increment'),
     map(() => ({ type: 'count/incrementAmount', payload: 2 })),
   ))
-  coreStore.send({ type: 'count/increment' })
+  coreStore.send({ type: 'count/increment', payload: undefined })
   expect(coreStore.state$).toBeObservable('3', { 3: { count: 3 } })
 }))
 
@@ -162,13 +170,13 @@ test('effect triggering another', coreMarbles(({ expect }) => {
   })
   coreStore.registerEffect(event$ => event$.pipe(
     filterByType('count/start'),
-    map(() => ({ type: 'count/incrementTwo' })),
+    map(() => ({ type: 'count/incrementTwo', payload: undefined })),
   ))
   coreStore.registerEffect(event$ => event$.pipe(
     filterByType('count/incrementTwo'),
     map(() => ({ type: 'count/incrementAmount', payload: 2 })),
   ))
-  coreStore.send({ type: 'count/start' })
+  coreStore.send({ type: 'count/start', payload: undefined })
   expect(coreStore.state$).toBeObservable('2', { 2: { count: 2 } })
 }))
 
@@ -192,7 +200,7 @@ test('effect reading the state', coreMarbles(({ expect }) => {
     map(({ count }) => count),
     map((count) => ({ type: 'count/incrementAmount', payload: count })),
   ))
-  coreStore.send({ type: 'count/start' })
+  coreStore.send({ type: 'count/start', payload: undefined })
   expect(coreStore.state$).toBeObservable('2', { 2: { count: 2 } })
 }))
 
@@ -207,4 +215,9 @@ test('create store error', () => {
   const storeError = createStoreError('message')
   expect(storeError.message).toBe('message')
   expect(storeError.stack.length > 0).toBe(true)
+})
+
+test('identity reducer', () => {
+  const state = { count: 1 }
+  expect(identityReducer(state, { type: 'count/increment' })).toBe(state)
 })

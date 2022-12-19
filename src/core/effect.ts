@@ -7,8 +7,12 @@ import type { StringLiteral } from '@core/type'
 export type CoreEffectFunction<STATE, EVENT extends CoreEvent> =
  (event$: Observable<EVENT>, state$: Observable<STATE>) => Observable<EVENT>
 
-export interface CoreEffect<STATE, EVENT extends CoreEvent> {
-  [key: string]: CoreEffectFunction<STATE, EVENT>
+export type CoreEffect<
+  STATE,
+  EVENT extends CoreEvent,
+  EFFECTS extends string,
+> = {
+  [key in EFFECTS]: CoreEffectFunction<STATE, EVENT>
 }
 
 type GetByType<ALL, TYPE_STRING> = Extract<ALL, { type: StringLiteral<TYPE_STRING> }>

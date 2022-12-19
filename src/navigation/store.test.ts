@@ -1,10 +1,11 @@
+import { STORE_INIT } from '@core/fake'
 import {
   navigationReducer,
-  changeLocationCreator,
+  createChangeLocation,
 } from './store'
 
 test('Default state is index', () => {
-  const initialState = navigationReducer(undefined, { type: 'init' })
+  const initialState = navigationReducer(undefined, STORE_INIT)
   expect(initialState).toEqual({
     pathname: '/',
     search: '',
@@ -18,7 +19,7 @@ test('Change location', () => {
     search: '',
     hash: '',
   }
-  const state = navigationReducer(initialState, changeLocationCreator({
+  const state = navigationReducer(initialState, createChangeLocation({
     pathname: '/new-path',
     search: 'a=1&b=2',
     hash: 'new-hash',

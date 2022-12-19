@@ -25,6 +25,6 @@ export const httpGetStub =
 const getFakeValue = <T>(value: T): Promise<T> | Promise<never> =>
   value instanceof Error
     ? timer(1).pipe(
-      mergeMap(() => throwError(value)),
+      mergeMap(() => throwError(() => value)),
     ) as unknown as Promise<never>
     : of(value).pipe(delay(1)) as unknown as Promise<T>

@@ -1,34 +1,40 @@
-import { createCoreStoreSlice } from '@core/store'
+import { createCoreStoreSlice, identityReducer, NamespacedState } from '@core/store'
 import type {
-  PayloadStoreEvent,
-  CoreEvent,
+  NamespacedStoreEvent,
 } from '@core/store'
 import type { Location } from './type'
+import { NAVIGATION_NAMESPACE } from './config'
 
 export type NavigationState = Location
 
+type NavigationStoreEvent<
+  SUB_TYPE extends string,
+  PAYLOAD = undefined,
+> = NamespacedStoreEvent<typeof NAVIGATION_NAMESPACE, SUB_TYPE, PAYLOAD>
+
 export type NavigationEventChangeLocation =
-  PayloadStoreEvent<'navigation/changeLocation', Location>
+  NavigationStoreEvent<'changeLocation', Location>
 
 export type NavigationEventAppNavigation =
-  PayloadStoreEvent<'navigation/appNavigation', Location>
+  NavigationStoreEvent<'appNavigation', Location>
 
 export type NavigationEventPlatformNavigation =
-  PayloadStoreEvent<'navigation/platformNavigation', Location>
+  NavigationStoreEvent<'platformNavigation', Location>
 
 export type NavigationEvent =
-  | CoreEvent
   | NavigationEventChangeLocation
   | NavigationEventAppNavigation
   | NavigationEventPlatformNavigation
 
 const changeLocation =
-  (state: NavigationState, event: NavigationEventChangeLocation): NavigationState => ({
+  (_: NavigationState, event: NavigationEventChangeLocation): NavigationState => ({
     ...event.payload,
   })
 
 const reducers = {
   changeLocation,
+  appNavigation: identityReducer<NavigationState, NavigationEventAppNavigation>,
+  platformNavigation: identityReducer<NavigationState, NavigationEventPlatformNavigation>,
 }
 
 const initialState = {
@@ -37,15 +43,20 @@ const initialState = {
   hash: '',
 }
 
-const navigationSlice = createCoreStoreSlice<NavigationState, typeof reducers>({
-  name: 'navigation',
+const navigationSlice = createCoreStoreSlice({
+  name: NAVIGATION_NAMESPACE,
   initialState,
   reducers,
 })
 
+export type AppStoreNavigationStateSlice = NamespacedState<typeof navigationSlice>
+
 export const {
   eventCreators: {
-    changeLocation: changeLocationCreator,
+    createChangeLocation,
+    createAppNavigation,
+    createPlatformNavigation,
   },
   reducer: navigationReducer,
+  stateToNavigation,
 } = navigationSlice

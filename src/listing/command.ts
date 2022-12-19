@@ -1,4 +1,4 @@
-import { fetchAllCreator, searchCreator, selectCreator } from './store'
+import { createFetchAll, createSearch, createSelect } from './store'
 import type { ListingEvent } from './store'
 import type { EventReceiver } from '@core/store'
 
@@ -8,15 +8,15 @@ export interface ListingCommand {
   select: (id: number) => void
 }
 
-export const listingCommand = <APP_STORE_EVENT extends ListingEvent>
-  (appStore: EventReceiver<APP_STORE_EVENT | ListingEvent>): ListingCommand => ({
+export const listingCommand =
+  (appStore: EventReceiver<ListingEvent>): ListingCommand => ({
     loadPokemonList: () => {
-      appStore.send(fetchAllCreator())
+      appStore.send(createFetchAll())
     },
     search: (term: string) => {
-      appStore.send(searchCreator(term))
+      appStore.send(createSearch(term))
     },
     select: (id: number) => {
-      appStore.send(selectCreator(id))
+      appStore.send(createSelect(id))
     },
   })

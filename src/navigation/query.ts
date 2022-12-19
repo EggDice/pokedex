@@ -1,7 +1,7 @@
 import { map } from 'rxjs/operators'
 import { createRouter } from './router'
 import type { StateReadable } from '@core/store'
-import type { NavigationState } from './store'
+import { AppStoreNavigationStateSlice, stateToNavigation } from './store'
 import type { Location } from './type'
 import type { Observable } from 'rxjs'
 import type { Router, RouteMatch } from './router'
@@ -15,11 +15,16 @@ const defaultRouter = createRouter([])
 
 export const navigationQuery =
   (
-    store: StateReadable<{ navigation: NavigationState }>,
+    store: StateReadable<AppStoreNavigationStateSlice>,
     router: Router = defaultRouter,
   ): NavigationQuery => ({
     location$:
-      store.state$.pipe(map(({ navigation }) => navigation)),
+      store.state$.pipe(
+        map(stateToNavigation),
+      ),
     route$:
-      store.state$.pipe(map(({ navigation }) => router.resolve(navigation))),
+      store.state$.pipe(
+        map(stateToNavigation),
+        map((location) => router.resolve(location),
+        )),
   })

@@ -1,22 +1,25 @@
 import type { PokemonService } from '@/pokemon'
 import { of } from 'rxjs'
 import { switchMap, map, filter, catchError } from 'rxjs/operators'
-import { filterByType } from '@core/effect'
+import { CoreEffect, filterByType } from '@core/effect'
 import type { CoreEffectFunction } from '@core/effect'
 import { createStoreError } from '@core/store'
-import { listLoadedCreator, detailsLoadedCreator, listErrorCreator } from './store'
+import { createListLoaded, createDetailsLoaded, createListError, createSelect } from './store'
 import type { ListingEvent } from './store'
-import type { NavigationEventPlatformNavigation, Router } from '@/navigation'
+import { createAppNavigation, NavigationEventPlatformNavigation, Router } from '@/navigation'
+import { LISTING_NAMESPACE } from './config'
+import { NAVIGATION_NAMESPACE } from '@/navigation/config'
 
-interface ListingEffect<
+type Effects =
+  | 'handleFetchAll'
+  | 'handleSearch'
+  | 'handleSelect'
+  | 'handleSelectRoute'
+
+type ListingEffect<
   APP_STORE_STATE,
   APP_STORE_EVENT extends ListingEvent,
-> {
-  handleFetchAll: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
-  handleSearch: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
-  handleSelect: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
-  handleSelectRoute: CoreEffectFunction<APP_STORE_STATE, APP_STORE_EVENT>
-}
+> = CoreEffect<APP_STORE_STATE, APP_STORE_EVENT, Effects>
 
 interface ListingEffectArgs {
   pokemonService: PokemonService
@@ -26,21 +29,20 @@ interface ListingEffectArgs {
 export const listingEffect =
   <
     APP_STORE_STATE,
-    APP_STORE_EVENT extends ListingEvent,
   > ({ pokemonService, router }: ListingEffectArgs):
-  ListingEffect<APP_STORE_STATE, APP_STORE_EVENT | ListingEvent> => {
+  ListingEffect<APP_STORE_STATE, ListingEvent> => {
     type EffectFunction = CoreEffectFunction<APP_STORE_STATE, ListingEvent>
     const handleFetchAll: EffectFunction = (event$) =>
       event$.pipe(
-        filterByType('listing/fetchAll'),
+        filterByType(`${LISTING_NAMESPACE}/fetchAll`),
         switchMap(pokemonService.getAllPokemon),
-        map(listLoadedCreator),
-        catchError(() => of(listErrorCreator(createStoreError('Failed to fetch pokemon list')))),
+        map(createListLoaded),
+        catchError(() => of(createListError(createStoreError('Failed to fetch pokemon list')))),
       )
 
     const handleSearch: EffectFunction = (event$) =>
       event$.pipe(
-        filterByType('listing/search'),
+        filterByType(`${LISTING_NAMESPACE}/search`),
         map(({ payload }) => payload),
         map((term: string) => term.toLowerCase()),
         switchMap((term: string) =>
@@ -54,42 +56,36 @@ export const listingEffect =
             ),
         ),
         switchMap((term) => of(
-          listLoadedCreator(term),
+          createListLoaded(term),
         )),
       )
 
     const handleSelect: EffectFunction = (event$) =>
       event$.pipe(
-        filterByType('listing/select'),
+        filterByType(`${LISTING_NAMESPACE}/select`),
         map(({ payload }) => payload),
         filter((payload) => payload !== 0),
         switchMap(pokemonService.getPokemonById),
         map(p => p ?? { name: '', types: [], stats: [], id: 0, image: '' }),
         switchMap((pokemon) => of(
-          detailsLoadedCreator(pokemon),
-          {
-            type: 'navigation/appNavigation' as const,
-            payload: {
-              pathname: `/pokemon/${pokemon.id}`,
-              search: '',
-              hash: '',
-            },
-          },
+          createDetailsLoaded(pokemon),
+          createAppNavigation({
+            pathname: `/pokemon/${pokemon.id}`,
+            search: '',
+            hash: '',
+          }),
         )),
       )
 
     const handleSelectRoute: EffectFunction = (event$) =>
       event$.pipe(
-        filterByType('navigation/platformNavigation'),
+        filterByType(`${NAVIGATION_NAMESPACE}/platformNavigation`),
         map(
           (event: NavigationEventPlatformNavigation) =>
             router.match(event.payload, 'SELECT_POKEMON'),
         ),
         filter((route) => route !== undefined),
-        map((route) => ({
-          type: 'listing/select',
-          payload: Number(route?.params.id),
-        })),
+        map((route) => createSelect(Number(route?.params.id))),
       )
 
     return {

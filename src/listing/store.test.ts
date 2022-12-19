@@ -1,16 +1,17 @@
 import {
   listingReducer,
-  fetchAllCreator,
-  listLoadedCreator,
-  searchCreator,
-  detailsLoadedCreator,
-  selectCreator,
-  listErrorCreator,
+  createFetchAll,
+  createListLoaded,
+  createSearch,
+  createDetailsLoaded,
+  createSelect,
+  createListError,
 } from './store'
 import { createStoreError } from '@core/store'
+import { STORE_INIT } from '@core/fake'
 
 test('Default state is loading', () => {
-  const initialState = listingReducer(undefined, { type: 'init' })
+  const initialState = listingReducer(undefined, STORE_INIT)
   expect(initialState).toEqual({
     listingStatus: 'initial' as const,
     searchTerm: '',
@@ -28,7 +29,7 @@ test('Start loading pokemons', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = listingReducer(initialState, fetchAllCreator())
+  const state = listingReducer(initialState, createFetchAll())
   expect(state).toEqual({
     listingStatus: 'loading-list',
     searchTerm: '',
@@ -46,7 +47,7 @@ test('Finish loading pokemons', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = listingReducer(initialState, listLoadedCreator([
+  const state = listingReducer(initialState, createListLoaded([
     { name: 'bulbasour', image: 'src', id: 1 },
   ]))
   expect(state).toEqual({
@@ -66,7 +67,7 @@ test('Start searching', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = listingReducer(initialState, searchCreator('bulbasaur'))
+  const state = listingReducer(initialState, createSearch('bulbasaur'))
   expect(state).toEqual({
     listingStatus: 'loading-list',
     searchTerm: 'bulbasaur',
@@ -84,7 +85,7 @@ test('Select pokemon', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = listingReducer(initialState, selectCreator(1))
+  const state = listingReducer(initialState, createSelect(1))
   expect(state).toEqual({
     listingStatus: 'loading-details',
     searchTerm: '',
@@ -102,7 +103,7 @@ test('Select pokemon loaded', () => {
     selectedPokemon: 1,
     details: undefined,
   }
-  const state = listingReducer(initialState, detailsLoadedCreator({
+  const state = listingReducer(initialState, createDetailsLoaded({
     name: 'bulbasour', types: [], stats: [], image: '', id: 1,
   }))
   expect(state).toEqual({
@@ -128,7 +129,7 @@ test('Error during loading listing', () => {
     selectedPokemon: 0,
     details: undefined,
   }
-  const state = listingReducer(initialState, listErrorCreator(createStoreError('')))
+  const state = listingReducer(initialState, createListError(createStoreError('')))
   expect(state).toEqual({
     listingStatus: 'loading-error',
     searchTerm: '',

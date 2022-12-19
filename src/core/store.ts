@@ -3,6 +3,7 @@ import { mergeAll } from 'rxjs/operators'
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import type { SliceCaseReducers } from '@reduxjs/toolkit'
 import type { CoreEffectFunction } from './effect'
+import { ObjectWithStringLiteralKey } from './type'
 
 export interface CoreStore<ALL_STATE, ALL_EVENT extends CoreEvent> extends
   StateReadable<ALL_STATE>,
@@ -30,64 +31,83 @@ export type CoreReducersObject<ALL_STATE, ALL_EVENT extends CoreEvent> = {
   [KEY in keyof ALL_STATE]: CoreReducer<ALL_STATE[KEY], ALL_EVENT>;
 }
 
-export interface StoreEvent<TYPE = any> {
+export interface CoreEvent<TYPE extends string = any, PAYLOAD = any> {
   type: TYPE
-}
-
-export interface PayloadStoreEvent<
-  TYPE = any,
-  PAYLOAD = any,
-> extends StoreEvent<TYPE> {
   payload: PAYLOAD
 }
 
-export type CoreEvent = StoreEvent | PayloadStoreEvent
+export type NamespacedState<SLICE extends CoreStoreSlice> =
+  SLICE extends CoreStoreSlice<infer STATE, any, infer NAMESPACE> ?
+    ObjectWithStringLiteralKey<NAMESPACE, STATE> :
+    never
+
+export type NamespacedStoreEvent<
+  NAMESPACE extends string,
+  SUB_TYPE extends string,
+  PAYLOAD = undefined,
+> =
+  CoreEvent<`${NAMESPACE}/${SUB_TYPE}`, PAYLOAD>
 
 export type CoreCaseReducer<
   STATE,
-  EVENT extends StoreEvent = StoreEvent,
+  EVENT extends CoreEvent = CoreEvent,
 > = (
   state: STATE,
   event: EVENT
 ) => STATE
 
 export interface CoreCaseReducersObject<STATE> {
-  [KEY: string]: CoreCaseReducer<STATE, StoreEvent>
-  | CoreCaseReducer<STATE, PayloadStoreEvent>
+  [KEY: string]: CoreCaseReducer<STATE, CoreEvent>
 }
 
 export interface CoreStoreConfig<
   STATE,
   CASE_REDUCERS extends CoreCaseReducersObject<STATE>,
+  NAMESPACE extends string = string,
 > {
-  name: string
+  name: NAMESPACE
   initialState: STATE
   reducers: CASE_REDUCERS
 };
 
-export type StoreEventCreator<EVENT> =
-  EVENT extends { type: infer TYPE, payload: infer PAYLOAD } ?
-      (payload: PAYLOAD) => PayloadStoreEvent<TYPE, PAYLOAD> :
-      () => EVENT
+export type StoreEventCreator<EVENT extends CoreEvent> =
+  EVENT extends { type: infer TYPE extends string, payload: infer PAYLOAD } ?
+    PAYLOAD extends undefined ?
+        () => EVENT :
+        (payload: PAYLOAD) => CoreEvent<TYPE, PAYLOAD> :
+    never
 
 export type StoreEventCreators<
   STATE,
   CASE_REDUCERS extends CoreCaseReducersObject<STATE>,
-> = {
-  [KEY in keyof CASE_REDUCERS]:
-  CASE_REDUCERS[KEY] extends (state: any, event: infer EVENT) => any ?
-    StoreEventCreator<EVENT> :
-    StoreEventCreator<CoreEvent>
-}
+> =
+  CASE_REDUCERS extends Record<infer K extends string, CoreCaseReducer<STATE, CoreEvent>> ?
+      {
+        [KEY in K as `create${Capitalize<KEY>}`]:
+        CASE_REDUCERS[KEY] extends (state: any, event: infer EVENT extends CoreEvent) => any ?
+          StoreEventCreator<EVENT> :
+          StoreEventCreator<CoreEvent>
+      }
+    :
+    never
 
-export interface CoreStoreSlice<
-  STATE,
-  CASE_REDUCERS extends CoreCaseReducersObject<STATE>,
-> {
-  name: string
+export type CoreStoreSlice<
+  STATE = any,
+  CASE_REDUCERS extends CoreCaseReducersObject<STATE> = CoreCaseReducersObject<STATE>,
+  NAMESPACE extends string = string,
+> = {
+  name: NAMESPACE
   reducer: CoreReducer<STATE>
   eventCreators: StoreEventCreators<STATE, CASE_REDUCERS>
-};
+} & CoreStateMapper<STATE, NAMESPACE>
+
+type CoreStateMapper<
+  STATE,
+  NAMESPACE extends string,
+> = {
+  [KEY in keyof ObjectWithStringLiteralKey<NAMESPACE, STATE> as `stateTo${Capitalize<KEY>}`]:
+  (ALL_STATE: ObjectWithStringLiteralKey<NAMESPACE, STATE>) => STATE
+}
 
 export interface StoreError {
   message: string
@@ -96,7 +116,7 @@ export interface StoreError {
 
 export const createCoreStore = <
   STATE,
-  EVENT extends StoreEvent | PayloadStoreEvent,
+  EVENT extends CoreEvent,
 > (reducer: CoreReducersObject<STATE, EVENT>): CoreStore<STATE, EVENT> => {
   const store = configureStore({ reducer })
   const event$ = new Subject<EVENT>()
@@ -129,8 +149,9 @@ export const createCoreStore = <
 export const createCoreStoreSlice = <
   STATE,
   CASE_REDUCERS extends CoreCaseReducersObject<STATE>,
-> (config: CoreStoreConfig<STATE, CASE_REDUCERS>):
-  CoreStoreSlice<STATE, CASE_REDUCERS> => {
+  NAMESPACE extends string = string,
+> (config: CoreStoreConfig<STATE, CASE_REDUCERS, NAMESPACE>):
+  CoreStoreSlice<STATE, CASE_REDUCERS, NAMESPACE> => {
   const {
     name,
     reducer,
@@ -140,15 +161,29 @@ export const createCoreStoreSlice = <
     initialState: config.initialState,
     reducers: config.reducers as SliceCaseReducers<STATE>,
   })
+  const actionEntries = Object.entries(actions)
+  const eventCreators = Object.fromEntries(actionEntries.map(
+    ([name, creator]) => [`create${capitalize(name)}`, creator],
+  ))
+  const mapperName: `stateTo${Capitalize<NAMESPACE>}` = `stateTo${capitalize(name)}`
+  // The literal type does not work without casting
+  const stateMapper: CoreStateMapper<STATE, NAMESPACE> = {
+    [mapperName]:
+      ({ [name]: state }: ObjectWithStringLiteralKey<NAMESPACE, STATE>): STATE => state,
+  } as unknown as CoreStateMapper<STATE, NAMESPACE>
   return {
     name,
     reducer: reducer as CoreReducer<STATE, CoreEvent>,
     // We don't want to reproduce the "immer" types that are used in redux-toolkit so we just
     // force cast the event creators
-    eventCreators: actions as
-        unknown as StoreEventCreators<STATE, CASE_REDUCERS>,
+    eventCreators: eventCreators as unknown as StoreEventCreators<STATE, CASE_REDUCERS>,
+    ...stateMapper,
   }
 }
+
+const capitalize =
+  <T extends string>(input: T): Capitalize<T> =>
+    `${input.charAt(0).toUpperCase()}${input.slice(1)}` as Capitalize<T>
 
 export const toStoreError = ({ message, stack = '' }: Error): StoreError => ({
   message,
@@ -156,3 +191,5 @@ export const toStoreError = ({ message, stack = '' }: Error): StoreError => ({
 })
 
 export const createStoreError = (message: string): StoreError => toStoreError(new Error(message))
+
+export const identityReducer = <STATE, EVENT> (state: STATE, _: EVENT): STATE => state
