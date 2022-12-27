@@ -1,10 +1,10 @@
-import { httpGetFake as httpGet } from '@/http/fake'
 import { createMemoryHistory } from 'history'
 import type { ExternalServices } from '@/app/type'
+import { pokemonApiClient } from '@/pokemon/stub'
 
-export const getExternalServicesFake = (): Omit<ExternalServices, 'router'> => {
+export const getExternalServicesFake = (): ExternalServices => {
   return {
-    httpGet,
+    pokemonApiClient,
     history: createMemoryHistory(),
   }
 }

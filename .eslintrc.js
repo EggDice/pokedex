@@ -14,6 +14,7 @@ module.exports = {
         "objectLiteralTypeAssertions": "allow-as-parameter"
       }
     ],
+    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     'deprecation/deprecation': 'warn',
   },
 }

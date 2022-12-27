@@ -6,4 +6,8 @@ import { LISTING_NAMESPACE } from './config'
 export const {
   getStateReadable,
   createAppStore,
-} = createStoreTools(LISTING_NAMESPACE, listingReducer, baseStore)
+} = createStoreTools({
+  namespace: LISTING_NAMESPACE,
+  reducer: listingReducer,
+  baseStore,
+})

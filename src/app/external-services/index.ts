@@ -1,10 +1,10 @@
-import { httpGet } from '@/http'
 import { ExternalServices } from '@/app/type'
 import { createBrowserHistory } from 'history'
+import { pokemonApiClient } from '@/pokemon/api'
 
-export const getExternalServices = (): Omit<ExternalServices, 'router'> => {
+export const getExternalServices = (): ExternalServices => {
   return {
-    httpGet,
+    pokemonApiClient,
     history: createBrowserHistory(),
   }
 }

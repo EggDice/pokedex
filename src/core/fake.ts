@@ -32,36 +32,41 @@ export interface StoreTools<
 type GetReducerObjectState<STATE> = STATE extends CoreReducersObject<infer S, any> ? S : STATE
 type GetReducerState<STATE> = STATE extends CoreReducer<infer S, any> ? S : STATE
 type GetReducerEvent<EVENT> = EVENT extends CoreReducer<any, infer E> ? E : EVENT
+interface CreateStoreToolsArgs<NAMESPACE> {
+  namespace: StringLiteral<NAMESPACE>
+  reducer: CoreReducer<any, any>
+  baseStore?: CoreReducersObject<any, any>
+}
 
-export const createStoreTools = <STATE_KEY>
-  (
-    key: StringLiteral<STATE_KEY>,
-    reducer: CoreReducer<any, any>,
-    baseStore: CoreReducersObject<any, any> = {},
-  ):
+export const createStoreTools = <NAMESPACE>
+  ({
+    namespace,
+    reducer,
+    baseStore = {},
+  }: CreateStoreToolsArgs<NAMESPACE>):
   StoreTools<
   GetReducerState<typeof reducer>,
   GetReducerEvent<typeof reducer>,
-  STATE_KEY,
+  NAMESPACE,
   GetReducerObjectState<typeof baseStore>
   > => {
     type BaseState = GetReducerObjectState<typeof baseStore>
     type State = GetReducerState<typeof reducer>
     type Event = GetReducerEvent<typeof reducer>
-    type AppStoreState = TestAppStoreState<State, STATE_KEY>
+    type AppStoreState = TestAppStoreState<State, NAMESPACE>
     return {
       getStateReadable: (in$: Observable<Partial<State>>): StateReadable<AppStoreState> => ({
         // We are faking a whole state so needs to force casting is needed
-        state$: in$.pipe(map(x => ({ [key]: x } as unknown as AppStoreState))),
+        state$: in$.pipe(map(x => ({ [namespace]: x } as unknown as AppStoreState))),
       }),
       createAppStore: () => {
         const store = createCoreStore<AppStoreState & BaseState, Event>({
           ...baseStore,
-          ...makeObjectFromStringLiteral(key, reducer),
+          ...makeObjectFromStringLiteral(namespace, reducer),
         })
         return {
           store,
-          sliceState$: store.state$.pipe(map((state) => state[key])),
+          sliceState$: store.state$.pipe(map((state) => state[namespace])),
         }
       },
     }

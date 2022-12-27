@@ -11,6 +11,9 @@ export const createNavigationServiceFake = (): NavigationService =>
 export const {
   createAppStore,
   getStateReadable,
-} = createStoreTools(NAVIGATION_NAMESPACE, navigationReducer)
+} = createStoreTools({
+  namespace: NAVIGATION_NAMESPACE,
+  reducer: navigationReducer,
+})
 
 export const baseStore = { [NAVIGATION_NAMESPACE]: navigationReducer }

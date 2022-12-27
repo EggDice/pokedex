@@ -11,14 +11,9 @@ import {
   BULBASAUR_LISTED,
 } from './fake'
 import { coreMarbles } from '@core/marbles'
-import { httpGet } from '@/http'
-import { httpGetFake } from '@/http/fake'
+import { pokemonApiClient } from './stub'
 
-const pokemonService = createPokemonService(httpGetFake)
-
-test('smoke for injecting real dependencies', () => {
-  createPokemonService(httpGet)
-})
+const pokemonService = createPokemonService(pokemonApiClient)
 
 test('get all pokemon', coreMarbles(({ expect }) => {
   const pokemons$ = pokemonService.getAllPokemon()

@@ -1,8 +1,9 @@
 import { createPokemonService } from './service'
-import { httpGetFake as httpGet } from '@/http/fake'
 import { addErrorMethodsToFake } from '@core/fake'
+import { pokemonApiClient } from './stub'
 
-export const createPokemonServiceFake = addErrorMethodsToFake(() => createPokemonService(httpGet))
+export const createPokemonServiceFake =
+  addErrorMethodsToFake(() => createPokemonService(pokemonApiClient))
 
 export const BULBASAUR = {
   id: 1,
