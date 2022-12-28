@@ -4,23 +4,10 @@ import type { JsonType } from '@core/type'
 import { firstValueFrom, Observable } from 'rxjs'
 
 test('the client should return the narrowed type by the request config', () => {
-  const fetcher: Fetcher<JsonType> = async () => await Promise.resolve({ a: 3 })
-  const createRestClient = createRestClientCreator(fetcher)
-  type Response = { a: number }
-  type Response2 = { b: string }
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path'
-    },
-    Response
-    >
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path2'
-    },
-    Response2
-    >
+    | RestEndpoint<GetRequestWithPath, Response>
+    | RestEndpoint<GetRequestWithPath2, Response2>
   const client = createRestClient<Api>('https', 'host')
   client({ method: 'GET', pathname: '/path' } as const) satisfies Observable<Response>
   // @ts-expect-error
@@ -28,73 +15,45 @@ test('the client should return the narrowed type by the request config', () => {
 })
 
 test('the request config type should be required', () => {
-  const createRestClient = createRestClientCreator(async () => await Promise.resolve({ a: 3 }))
-  type Response = { a: number }
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
-    | RestEndpoint<
     // @ts-expect-error
-    undefined,
-    Response
-    >
+    | RestEndpoint<undefined, Response>
   // @ts-expect-error
   createRestClient<Api>('host')
 })
 
 test('the client should return the narrowed type by the request config', async () => {
-  const createRestClient = createRestClientCreator(async () => await Promise.resolve({ a: 3 }))
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Response = { a: number }
   type Api =
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path'
-    },
-    Response
-    >
+    | RestEndpoint<GetRequestWithPath, Response>
   const client = createRestClient<Api>('https', 'host')
   const response = await firstValueFrom(client({ method: 'GET', pathname: '/path' }))
-  expect(response).toEqual({ a: 3 })
+  expect(response).toEqual(TEST_RESPONSE)
 })
 
-test('the rest client should expect RestEndpoints', async () => {
-  const createRestClient = createRestClientCreator(async () => {})
+test('the rest client should expect RestEndpoints', () => {
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   // @ts-expect-error
   createRestClient<string>('host')
 })
 
 test('the fetcher type should narrow the possible response types', () => {
-  const fetcher: Fetcher<JsonType> = async () => await Promise.resolve({ a: 3 })
-  const createRestClient = createRestClientCreator(fetcher)
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path'
-    },
-    () => void
-    >
+    | RestEndpoint<GetRequestWithPath, () => void>
   // @ts-expect-error
   createRestClient<Api>('https', 'host')
 })
 
 test('the response type should be dependent on the method', () => {
-  const fetcher: Fetcher<JsonType> = async () => await Promise.resolve({ a: 3 })
-  const createRestClient = createRestClientCreator(fetcher)
-  type Response = { a: number }
-  type Response2 = { b: string }
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Api =
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path'
-    },
-    Response
-    >
-    | RestEndpoint<{
-      method: 'POST'
-      pathname: '/path'
-    },
-    Response2
-    >
+    | RestEndpoint<GetRequestWithPath, Response>
+    | RestEndpoint<PostRequestWithPath, Response2>
   const client = createRestClient<Api>('https', 'host')
-  client({ method: 'POST', pathname: '/path' }) satisfies Observable<Response2>
+  client({ method: 'POST', pathname: '/path' } as const) satisfies Observable<Response2>
 })
 
 test('all request params should be passed to the fetcher', async () => {
@@ -147,8 +106,7 @@ test('all request params should be passed to the fetcher', async () => {
 })
 
 test('the client should return the narrowed type by the request config', () => {
-  const fetcher: Fetcher<JsonType> = async () => await Promise.resolve({ e: 3 })
-  const createRestClient = createRestClientCreator(fetcher)
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
   type Response = { a: number }
   type Response2 = { b: string }
   type Response3 = { c: string }
@@ -235,27 +193,34 @@ test('the client should return the narrowed type by the request config', () => {
 })
 
 test('the awaited value should be narrowed', async () => {
-  const fetcher: Fetcher<JsonType> = async () => await Promise.resolve({ a: 3 })
-  const createRestClient = createRestClientCreator(fetcher)
-  type Response = { a: number }
-  type Response2 = { b: string }
-  type Api
-  =
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path'
-    },
-    Response
-    >
-    | RestEndpoint<{
-      method: 'GET'
-      pathname: '/path2'
-    },
-    Response2
-    >
+  const createRestClient = createRestClientCreator(JSON_FETCHER_WITH_TEST_RESPONSE)
+  type Api =
+    | RestEndpoint<GetRequestWithPath, Response>
+    | RestEndpoint<GetRequestWithPath2, Response2>
   const client: RestClient<Fetcher<JsonType>, Api> = createRestClient<Api>('https', 'host')
   const response = await firstValueFrom(client({ method: 'GET', pathname: '/path' } as const))
   response satisfies Response
   // @ts-expect-error
   response satisfies Response2
 })
+
+const TEST_RESPONSE = { a: 3 }
+const JSON_FETCHER_WITH_TEST_RESPONSE: Fetcher<JsonType> = async () => await Promise.resolve(TEST_RESPONSE)
+
+type GetRequestWithPath = {
+  method: 'GET'
+  pathname: '/path'
+}
+
+type GetRequestWithPath2 = {
+  method: 'GET'
+  pathname: '/path2'
+}
+
+type PostRequestWithPath = {
+  method: 'GET'
+  pathname: '/path'
+}
+
+type Response = { a: number }
+type Response2 = { b: number }

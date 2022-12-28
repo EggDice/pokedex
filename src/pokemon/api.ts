@@ -1,7 +1,6 @@
 import { createJsonRestClient } from '@/rest/json'
 import type { JsonRestClient } from '@/rest/json'
 import type { RestEndpoint } from '@/rest/service'
-import { TokenNonEmptyString } from '@core/type'
 
 const POKEMON_BASE_PATHNAME = '/api/v2/pokemon/' as const
 
@@ -55,7 +54,7 @@ export type PokemonApi =
   | PokemonApiSingleEndpoint
 
 export const pokemonApiClient =
-  createJsonRestClient<PokemonApi>('https', 'pokemon.co') satisfies PokemonApiClent
+  createJsonRestClient<PokemonApi>('https', 'pokeapi.co') // TODO satisfies PokemonApiClent
 
 export const createListPokemonRequest =
   ({ offset, limit }: { offset: number, limit: number }): PokemonApiListRequest => ({
