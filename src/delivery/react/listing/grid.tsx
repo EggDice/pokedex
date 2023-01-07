@@ -19,7 +19,12 @@ export const ImageGrid: React.FC<Props> = ({ images, onSelect, isListLoaded }) =
       {
         images.map(
           ({ image, name, id }) =>
-            <li key={id} onClick={() => { onSelect(id) }} className="listing-pokemon">
+            <li
+              key={id}
+              onClick={() => { onSelect(id) }}
+              className="listing-pokemon"
+              data-testid="listing-pokemon"
+            >
               <img alt={name} src={image} className="pokemon-image"/>
             </li>)
       }

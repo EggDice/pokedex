@@ -13,9 +13,12 @@ import {
 } from '@playwright/test';
 import { ITestCaseHookParameter } from '@cucumber/cucumber/lib/support_code_library_builder/types';
 import { ensureDir } from 'fs-extra';
+import { createServer, ViteDevServer } from 'vite'
+
 
 let browser: ChromiumBrowser | FirefoxBrowser | WebKitBrowser;
 const tracesDir = 'traces';
+let devServer: ViteDevServer
 
 declare global {
   // eslint-disable-next-line no-var
@@ -24,7 +27,7 @@ declare global {
 
 setDefaultTimeout(process.env.PWDEBUG ? -1 : 60 * 1000);
 
-BeforeAll(async function () {
+BeforeAll(async function (this: ICustomWorld) {
   switch (config.browser) {
     case 'firefox':
       browser = await firefox.launch(config.browserOptions);
@@ -36,6 +39,15 @@ BeforeAll(async function () {
       browser = await chromium.launch(config.browserOptions);
   }
   await ensureDir(tracesDir);
+  devServer = await createServer({
+    // any valid user config options, plus `mode` and `configFile`
+    root: __dirname + '/../../../',
+    server: {
+      port: 5000,
+    },
+    logLevel: 'silent',
+  })
+  await devServer.listen()
 });
 
 Before({ tags: '@ignore' }, async function () {
@@ -63,6 +75,10 @@ Before(async function (this: ICustomWorld, { pickle }: ITestCaseHookParameter) {
 
   await this.context.tracing.start({ screenshots: true, snapshots: true });
   this.page = await this.context.newPage();
+  await this.page.route('https://pokeapi.co/api/v2/pokemon/*', route => route.fulfill({
+    status: 200,
+    body: JSON.stringify({results: Array.from({length: 151}, (_, i) => ({name: `${i}`}))}),
+  }));
   this.page.on('console', async (msg: ConsoleMessage) => {
     if (msg.type() === 'log') {
       await this.attach(msg.text());
@@ -89,6 +105,7 @@ After(async function (this: ICustomWorld, { result }: ITestCaseHookParameter) {
   await this.context?.close();
 });
 
-AfterAll(async function () {
+AfterAll(async function (this: ICustomWorld) {
   await browser.close();
+  await devServer.close();
 });

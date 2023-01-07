@@ -1,17 +1,9 @@
-@foo
-Feature: Playwright multi docs
-
+Feature: List pokemons
 
   Background: Navigation
-    Given Go to the playwright website
+    Given The app is opened
 
-  Scenario Outline: Changing theme to required mode
-    When Change theme to "<ThemeOne>" mode
-    Then Snapshot "<ThemeOne>"
-    When Change theme to "<ThemeTwo>" mode
-    Then Snapshot "<ThemeTwo>"
+  Rule: All is listed by default
 
-    Examples:
-      | ThemeOne | ThemeTwo |
-      | light    | dark     |
-      | dark     | light    |
+    Scenario: User can browse pokemons
+      Then 151 pokemons are listed
