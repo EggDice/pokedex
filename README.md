@@ -28,3 +28,27 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+## Principles
+
+The architecture is created following a set of principles.
+
+Functional style
+  - Pure functions
+  - Immutable data structures
+- Types safety
+- Observables
+  - marbles
+- external / internal services
+- faking
+  - no mocks
+  - worst case stubs
+  - Only the edge modules
+- Flux + Centralized store (Redux)
+  - command
+  - store
+  - query
+  - effect
+  - service
+- framework is a plugin
+- libraries and browser apis are wrapped as abstractions

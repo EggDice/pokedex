@@ -44,8 +44,6 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
-    "pixelmatch": "^5.3.0",
-    "pngjs": "^6.0.0",
     "rxjs-marbles": "^7.0.1",
     "ts-node": "^10.9.1",
     "vite": "^4.0.3",
